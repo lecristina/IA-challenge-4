@@ -1,0 +1,96 @@
+-- ============================================
+-- V0: Limpeza completa do banco para resetar o Flyway
+-- ============================================
+
+-- 1. Desabilitar constraints temporariamente
+SET CONSTRAINTS ALL DEFERRED;
+
+-- 2. Limpar todas as tabelas (cuidado: isso apaga todos os dados!)
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE auditoria CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE dashboard CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE operacoes CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE status_motos CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE motos CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE usuarios CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+-- 3. Limpar todas as sequences
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_usuarios';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_motos';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_status_motos';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_operacoes';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+    EXECUTE IMMEDIATE 'DROP SEQUENCE seq_dashboard';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+-- 4. Limpar tabela de controle do Flyway (CRÍTICO!)
+BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE flyway_schema_history CASCADE CONSTRAINTS';
+EXCEPTION
+    WHEN OTHERS THEN NULL;
+END;
+/
+
+-- 5. Comentário de confirmação
+SELECT 'Banco limpo e pronto para recriação!' as status FROM dual;

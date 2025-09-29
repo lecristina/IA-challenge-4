@@ -1,0 +1,189 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragmentos :: cabecalho('Status das Motos')}" />
+
+<body>
+	<!-- Navbar -->
+	<nav th:replace="~{fragmentos :: navbar}" />
+
+	<div class="container-fluid py-4">
+		<div th:replace="~{fragmentos :: saudacoes(${usuario_logado})}" />
+
+		<!-- Alerts -->
+		<div th:if="${param.sucesso}"
+			class="alert alert-success-custom alert-dismissible fade show"
+			role="alert">
+			<i class="fas fa-check-circle me-2"></i> <strong>Sucesso!</strong>
+			Operação processada com sucesso!
+			<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+		</div>
+
+		<div th:if="${erro}"
+			class="alert alert-danger-custom alert-dismissible fade show"
+			role="alert">
+			<i class="fas fa-exclamation-triangle me-2"></i> <strong>Erro!</strong>
+			<span th:text="${erro}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+		</div>
+
+		<!-- Header -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="d-flex justify-content-between align-items-center">
+					<div>
+						<h2 class="mb-0">
+							<i class="fas fa-info-circle me-2"></i> Status das Motos
+						</h2>
+						<p class="text-muted mb-0">Acompanhe o status atual de todas as motos do sistema</p>
+					</div>
+					<div class="action-buttons">
+						<a href="/motos/status/novo" class="btn btn-primary-custom btn-custom">
+							<i class="fas fa-plus me-1"></i>Novo Status
+						</a>
+						<a href="/motos" class="btn btn-secondary-custom btn-custom">
+							<i class="fas fa-motorcycle me-1"></i>Lista de Motos
+						</a>
+						<a href="/relatorios/status" class="btn btn-info-custom btn-custom">
+							<i class="fas fa-chart-bar me-1"></i>Relatórios
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Estatísticas de status -->
+		<div class="row mb-4" th:if="${statusMotos != null}">
+			<div class="col-md-3">
+				<div class="stats-card">
+					<div class="stats-number" th:text="${#lists.size(statusMotos)}">0</div>
+					<div class="stats-label">Total de Status</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="stats-card">
+					<div class="stats-number" th:text="${#lists.size(statusMotos.?[status == 'PRONTA'])}">0</div>
+					<div class="stats-label">Prontas</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="stats-card">
+					<div class="stats-number" th:text="${#lists.size(statusMotos.?[status == 'ALUGADA'])}">0</div>
+					<div class="stats-label">Alugadas</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="stats-card">
+					<div class="stats-number" th:text="${#lists.size(statusMotos.?[status == 'REPARO_SIMPLES' or status == 'DANOS_ESTRUTURAIS' or status == 'MOTOR_DEFEITUOSO' or status == 'MANUTENCAO_AGENDADA'])}">0</div>
+					<div class="stats-label">Em Manutenção</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Tabela de status das motos -->
+		<div class="row">
+			<div class="col-12">
+				<div class="card-custom">
+					<div class="card-header">
+						<h5 class="mb-0">
+							<i class="fas fa-list me-2"></i> Status das Motos
+							<span class="badge badge-custom bg-primary ms-2" th:text="${#lists.size(statusMotos)}"></span>
+						</h5>
+					</div>
+					<div class="card-body p-0">
+						<div class="table-responsive">
+							<table class="table table-custom mb-0">
+								<thead>
+									<tr>
+										<th scope="col"><i class="fas fa-hashtag me-1"></i>ID</th>
+										<th scope="col"><i class="fas fa-motorcycle me-1"></i>Moto</th>
+										<th scope="col"><i class="fas fa-info-circle me-1"></i>Status</th>
+										<th scope="col"><i class="fas fa-map-marker-alt me-1"></i>Área</th>
+										<th scope="col"><i class="fas fa-user me-1"></i>Usuário</th>
+										<th scope="col"><i class="fas fa-info-circle me-1"></i>Observações</th>
+										<th scope="col"><i class="fas fa-calendar me-1"></i>Data/Hora</th>
+										<th scope="col" class="text-center"><i class="fas fa-cogs me-1"></i>Ações</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="statusMoto : ${statusMotos}" class="fade-in">
+										<th scope="row" th:text="${statusMoto.id}"></th>
+										<td>
+											<div class="d-flex align-items-center">
+												<i class="fas fa-motorcycle text-muted me-2"></i>
+												<div>
+													<div class="fw-bold" th:text="${statusMoto.moto?.placa ?: 'N/A'}"></div>
+													<small class="text-muted" th:text="${statusMoto.moto?.chassi ?: 'N/A'}"></small>
+												</div>
+											</div>
+										</td>
+										<td>
+											<span class="badge bg-primary">
+												<i class="fas fa-info-circle me-1"></i>
+												<span th:text="${statusMoto.status}"></span>
+											</span>
+										</td>
+										<td th:text="${statusMoto.area}"></td>
+										<td th:text="${statusMoto.usuario?.nomeFilial ?: 'N/A'}"></td>
+										<td>
+											<span th:text="${statusMoto.area ?: 'Sem área'}" 
+												  th:title="${statusMoto.area ?: 'Sem área'}"
+												  class="text-truncate d-inline-block" 
+												  style="max-width: 200px;"></span>
+										</td>
+										<td th:text="${#temporals.format(statusMoto.dataCriacao,'dd/MM/yyyy HH:mm')}"></td>
+										<td class="text-center">
+											<div class="action-buttons">
+												<a th:href="@{/motos/status/editar/{id}(id=${statusMoto.id})}"
+												   class="btn btn-sm btn-warning-custom btn-custom"
+												   title="Editar Status">
+													<i class="fas fa-edit"></i>
+												</a>
+												<a th:href="@{/motos/status/excluir/{id}(id=${statusMoto.id})}"
+												   class="btn btn-sm btn-danger-custom btn-custom"
+												   title="Excluir Status"
+												   onclick="return confirm('Tem certeza que deseja excluir este status?')">
+													<i class="fas fa-trash"></i>
+												</a>
+											</div>
+										</td>
+									</tr>
+									<tr th:if="${#lists.isEmpty(statusMotos)}">
+										<td colspan="8" class="text-center py-4">
+											<i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+											<h5 class="text-muted">Nenhum status registrado</h5>
+											<p class="text-muted">Os status das motos aparecerão aqui quando forem criados</p>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Navegação -->
+		<div class="row mt-4">
+			<div class="col-12">
+				<div class="d-flex justify-content-center gap-2 flex-wrap">
+					<a href="/motos" class="btn btn-secondary-custom btn-custom">
+						<i class="fas fa-motorcycle me-1"></i>Lista de Motos
+					</a>
+					<a href="/relatorios/operacoes-periodo" class="btn btn-info-custom btn-custom">
+						<i class="fas fa-chart-bar me-1"></i>Relatórios
+					</a>
+					<a href="/dashboard" class="btn btn-success-custom btn-custom">
+						<i class="fas fa-tachometer-alt me-1"></i>Dashboard
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal de confirmação -->
+	<div th:replace="~{fragmentos :: modal-confirmacao}" />
+</body>
+
+</html>
