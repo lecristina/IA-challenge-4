@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragmentos :: cabecalho('Assistente IA - TrackZone')}">
+</head>
+<body class="bg-gradient-primary">
+	<!-- Navbar -->
+	<nav th:replace="~{fragmentos :: navbar}"></nav>
+
+	<div class="container mt-4 mb-5">
+		<div class="row justify-content-center">
+			<div class="col-lg-10">
+				<!-- Card do Chat -->
+				<div class="card shadow-lg border-0 chat-container">
+					<div class="card-header bg-primary text-white">
+						<div class="d-flex align-items-center">
+							<i class="fas fa-robot fa-2x me-3"></i>
+							<div>
+								<h4 class="mb-0">
+									<i class="fas fa-sparkles me-2"></i>Assistente IA TrackZone
+								</h4>
+								<small class="opacity-75">Seu assistente inteligente para gestão de motos</small>
+							</div>
+						</div>
+					</div>
+
+					<div class="card-body p-0">
+						<!-- Área de Mensagens -->
+						<div id="chatMessages" class="chat-messages p-4" style="height: 500px; overflow-y: auto;">
+							<!-- Mensagem de boas-vindas -->
+							<div class="bot-message mb-3">
+								<div class="d-flex align-items-start">
+									<div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+										<i class="fas fa-robot"></i>
+									</div>
+									<div class="message-content flex-grow-1">
+										<div class="bg-light p-3 rounded shadow-sm">
+											<h6 class="mb-2"><i class="fas fa-hand-wave me-2"></i>Olá! Bem-vindo ao Assistente IA TrackZone</h6>
+											<p class="mb-0">Sou seu assistente inteligente para gestão de motos. Posso ajudar você com:</p>
+											<ul class="mb-0 mt-2">
+												<li>Status de motos</li>
+												<li>Cadastro e exclusão</li>
+												<li>Operações do sistema</li>
+												<li>Relatórios e dashboard</li>
+												<li>E muito mais!</li>
+											</ul>
+											<p class="mb-0 mt-2"><strong>Faça uma pergunta ou use as perguntas rápidas abaixo!</strong></p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Formulário de pergunta -->
+						<div class="card-footer bg-white border-top">
+							<form id="chatForm" class="d-flex align-items-center gap-2">
+								<input type="text" id="perguntaInput" class="form-control" 
+									placeholder="Digite sua pergunta aqui..." 
+									autocomplete="off" required>
+								<button type="submit" class="btn btn-primary">
+									<i class="fas fa-paper-plane me-1"></i>Enviar
+								</button>
+								<button type="button" class="btn btn-outline-primary" onclick="limparChat()"
+									title="Limpar conversa">
+									<i class="fas fa-trash-alt"></i>
+								</button>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<!-- Perguntas Rápidas -->
+				<div class="row mt-4">
+					<div class="col-12">
+						<h5 class="mb-3"><i class="fas fa-lightbulb me-2"></i>Perguntas Rápidas</h5>
+					</div>
+					<div class="col-md-4 mb-3">
+						<div class="card suggestion-card h-100">
+							<div class="card-body text-center">
+								<i class="fas fa-info-circle fa-3x text-primary mb-3"></i>
+								<h6>Quais são os status disponíveis?</h6>
+								<button class="btn btn-sm btn-outline-primary mt-2"
+									onclick="enviarPerguntaRapida('Quais são os status disponíveis para motos?')">
+									Perguntar <i class="fas fa-arrow-right ms-1"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 mb-3">
+						<div class="card suggestion-card h-100">
+							<div class="card-body text-center">
+								<i class="fas fa-plus-circle fa-3x text-success mb-3"></i>
+								<h6>Como cadastrar uma moto?</h6>
+								<button class="btn btn-sm btn-outline-success mt-2"
+									onclick="enviarPerguntaRapida('Como cadastrar uma moto?')">
+									Perguntar <i class="fas fa-arrow-right ms-1"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 mb-3">
+						<div class="card suggestion-card h-100">
+							<div class="card-body text-center">
+								<i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+								<h6>Como excluir uma moto?</h6>
+								<button class="btn btn-sm btn-outline-danger mt-2"
+									onclick="enviarPerguntaRapida('Como excluir uma moto?')">
+									Perguntar <i class="fas fa-arrow-right ms-1"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 mb-3">
+						<div class="card suggestion-card h-100">
+							<div class="card-body text-center">
+								<i class="fas fa-exchange-alt fa-3x text-info mb-3"></i>
+								<h6>Quais operações posso fazer?</h6>
+								<button class="btn btn-sm btn-outline-info mt-2"
+									onclick="enviarPerguntaRapida('Quais operações posso fazer no sistema?')">
+									Perguntar <i class="fas fa-arrow-right ms-1"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 mb-3">
+						<div class="card suggestion-card h-100">
+							<div class="card-body text-center">
+								<i class="fas fa-chart-bar fa-3x text-warning mb-3"></i>
+								<h6>Como usar os relatórios?</h6>
+								<button class="btn btn-sm btn-outline-warning mt-2"
+									onclick="enviarPerguntaRapida('Como usar os relatórios do sistema?')">
+									Perguntar <i class="fas fa-arrow-right ms-1"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-4 mb-3">
+						<div class="card suggestion-card h-100">
+							<div class="card-body text-center">
+								<i class="fas fa-question-circle fa-3x text-secondary mb-3"></i>
+								<h6>Preciso de ajuda geral</h6>
+								<button class="btn btn-sm btn-outline-secondary mt-2"
+									onclick="enviarPerguntaRapida('Preciso de ajuda com o sistema')">
+									Perguntar <i class="fas fa-arrow-right ms-1"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Scripts -->
+	<div th:replace="~{fragmentos :: scripts}"></div>
+	
+	<!-- CSRF Token -->
+	<meta name="_csrf" th:content="${_csrf?.token ?: ''}"/>
+	<meta name="_csrf_header" th:content="${_csrf?.headerName ?: 'X-CSRF-TOKEN'}"/>
+
+	<script>
+		let messageCount = 0;
+
+		function enviarPerguntaRapida(pergunta) {
+			document.getElementById('perguntaInput').value = pergunta;
+			document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+		}
+
+		document.getElementById('chatForm').addEventListener('submit', async function(e) {
+			e.preventDefault();
+			
+			const perguntaInput = document.getElementById('perguntaInput');
+			const pergunta = perguntaInput.value.trim();
+			
+			if (!pergunta) {
+				return;
+			}
+			
+			// Adicionar mensagem do usuário
+			adicionarMensagemUsuario(pergunta);
+			
+			// Limpar input
+			perguntaInput.value = '';
+			
+			// Mostrar loading
+			const loadingId = adicionarMensagemLoading();
+			
+			try {
+				// Obter CSRF token
+				const csrfToken = document.querySelector('meta[name="_csrf"]')?.content || '';
+				const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+				
+				// Fazer requisição
+				const response = await fetch('/ai/perguntar', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+						[csrfHeader]: csrfToken
+					},
+					body: `pergunta=${encodeURIComponent(pergunta)}&contexto=Sistema de gestão de motos TrackZone`
+				});
+				
+				// Remover loading
+				document.getElementById(loadingId)?.remove();
+				
+				if (response.ok) {
+					const resposta = await response.text();
+					adicionarMensagemBot(resposta);
+				} else {
+					adicionarMensagemBot('Desculpe, ocorreu um erro ao processar sua pergunta. Tente novamente.');
+				}
+			} catch (error) {
+				console.error('Erro ao enviar pergunta:', error);
+				document.getElementById(loadingId)?.remove();
+				adicionarMensagemBot('Erro ao processar sua pergunta. Verifique sua conexão e tente novamente.');
+			}
+		});
+
+		function adicionarMensagemUsuario(texto) {
+			const chatMessages = document.getElementById('chatMessages');
+			const messageDiv = document.createElement('div');
+			messageDiv.className = 'user-message mb-3';
+			messageDiv.innerHTML = `
+				<div class="d-flex align-items-start justify-content-end">
+					<div class="message-content flex-grow-1" style="max-width: 70%;">
+						<div class="bg-primary text-white p-3 rounded shadow-sm">
+							<p class="mb-0">${escapeHtml(texto)}</p>
+						</div>
+					</div>
+					<div class="avatar bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center ms-3" style="width: 40px; height: 40px;">
+						<i class="fas fa-user"></i>
+					</div>
+				</div>
+			`;
+			chatMessages.appendChild(messageDiv);
+			chatMessages.scrollTop = chatMessages.scrollHeight;
+		}
+
+		function adicionarMensagemBot(texto) {
+			const chatMessages = document.getElementById('chatMessages');
+			const messageDiv = document.createElement('div');
+			messageDiv.className = 'bot-message mb-3';
+			messageDiv.innerHTML = `
+				<div class="d-flex align-items-start">
+					<div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+						<i class="fas fa-robot"></i>
+					</div>
+					<div class="message-content flex-grow-1">
+						<div class="bg-light p-3 rounded shadow-sm">
+							<div class="text-break">${formatarResposta(texto)}</div>
+						</div>
+					</div>
+				</div>
+			`;
+			chatMessages.appendChild(messageDiv);
+			chatMessages.scrollTop = chatMessages.scrollHeight;
+		}
+
+		function adicionarMensagemLoading() {
+			const chatMessages = document.getElementById('chatMessages');
+			const loadingId = 'loading-' + Date.now();
+			const messageDiv = document.createElement('div');
+			messageDiv.id = loadingId;
+			messageDiv.className = 'bot-message mb-3';
+			messageDiv.innerHTML = `
+				<div class="d-flex align-items-start">
+					<div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+						<i class="fas fa-robot"></i>
+					</div>
+					<div class="message-content flex-grow-1">
+						<div class="bg-light p-3 rounded shadow-sm">
+							<div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+								<span class="visually-hidden">Carregando...</span>
+							</div>
+							<span>Processando...</span>
+						</div>
+					</div>
+				</div>
+			`;
+			chatMessages.appendChild(messageDiv);
+			chatMessages.scrollTop = chatMessages.scrollHeight;
+			return loadingId;
+		}
+
+		function formatarResposta(texto) {
+			// Converter markdown básico para HTML
+			texto = escapeHtml(texto);
+			texto = texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+			texto = texto.replace(/\*(.*?)\*/g, '<em>$1</em>');
+			texto = texto.replace(/•/g, '<span class="text-primary">•</span>');
+			texto = texto.replace(/\n/g, '<br>');
+			return texto;
+		}
+
+		function escapeHtml(text) {
+			const div = document.createElement('div');
+			div.textContent = text;
+			return div.innerHTML;
+		}
+
+		function limparChat() {
+			const chatMessages = document.getElementById('chatMessages');
+			const welcomeMessage = chatMessages.querySelector('.bot-message:first-child');
+			chatMessages.innerHTML = '';
+			if (welcomeMessage) {
+				chatMessages.appendChild(welcomeMessage);
+			}
+		}
+
+		// Auto-scroll para baixo ao carregar
+		document.addEventListener('DOMContentLoaded', function() {
+			const chatMessages = document.getElementById('chatMessages');
+			chatMessages.scrollTop = chatMessages.scrollHeight;
+		});
+	</script>
+
+	<style>
+		.chat-container {
+			border-radius: 15px;
+			overflow: hidden;
+		}
+
+		.chat-messages {
+			background: #f8f9fa;
+			border-bottom: 1px solid #dee2e6;
+		}
+
+		.user-message .message-content {
+			text-align: right;
+		}
+
+		.bot-message .message-content {
+			text-align: left;
+		}
+
+		.suggestion-card {
+			transition: transform 0.3s ease, box-shadow 0.3s ease;
+			border: none;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+		}
+
+		.suggestion-card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+		}
+
+		.avatar {
+			flex-shrink: 0;
+		}
+
+		.message-content {
+			word-wrap: break-word;
+		}
+	</style>
+</body>
+</html>
+

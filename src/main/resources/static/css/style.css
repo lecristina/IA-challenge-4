@@ -339,3 +339,162 @@ body {
     font-size: 0.875rem;
     color: var(--danger-color);
 }
+
+/* Animações modernas */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
+.shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* Melhorias para cards modernos */
+.card-modern {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card-modern:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.card-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Botões modernos */
+.btn-modern {
+    border-radius: 25px;
+    padding: 0.6rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-modern::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-modern:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Gradient text */
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Floating animation */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Estilos para o Chatbot IA no header */
+.chatbot-link {
+    color: #FFD700 !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.chatbot-link:hover {
+    color: #FFED4E !important;
+    transform: translateY(-1px);
+}
+
+.chatbot-link .chatbot-text {
+    color: #FFD700;
+    font-weight: 600;
+}
+
+.chatbot-link:hover .chatbot-text {
+    color: #FFED4E;
+}
+
+/* Badge "NOVO" com animação de pulso */
+.badge-pulse {
+    animation: pulse 2s ease-in-out infinite;
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+@keyframes badgePulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.9;
+    }
+}
+
+.badge-pulse {
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+/* Responsividade para o chatbot no header */
+@media (max-width: 768px) {
+    .chatbot-link .chatbot-text {
+        display: none;
+    }
+    
+    .chatbot-link .fa-robot {
+        margin-right: 0 !important;
+    }
+    
+    .badge-pulse {
+        font-size: 0.55rem;
+        padding: 0.2rem 0.4rem;
+    }
+}

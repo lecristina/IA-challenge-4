@@ -9,7 +9,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories
 @EntityScan
 @ComponentScan
-@SpringBootApplication
+@SpringBootApplication(exclude = {
+	// Excluir autoconfiguração do Spring AI quando não configurado
+	// Isso previne erros de inicialização quando não há API key configurada
+	org.springframework.ai.autoconfigure.openai.OpenAiAutoConfiguration.class,
+	org.springframework.ai.autoconfigure.ollama.OllamaAutoConfiguration.class
+})
 public class UniversidadeFiapApplication {
 
 	public static void main(String[] args) {

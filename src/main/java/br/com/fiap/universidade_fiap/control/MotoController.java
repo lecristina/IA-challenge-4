@@ -3,9 +3,9 @@ package br.com.fiap.universidade_fiap.control;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,23 +14,29 @@ import org.springframework.web.servlet.ModelAndView;
 
 // EnumStatus removido - usando String agora
 import br.com.fiap.universidade_fiap.model.Moto;
-import br.com.fiap.universidade_fiap.model.StatusMoto;
 import br.com.fiap.universidade_fiap.model.Usuario;
 import br.com.fiap.universidade_fiap.repository.MotoRepository;
-import br.com.fiap.universidade_fiap.repository.StatusMotosRepository;
-import br.com.fiap.universidade_fiap.repository.UsuarioRepository;
+import br.com.fiap.universidade_fiap.service.AuthenticationService;
+import br.com.fiap.universidade_fiap.service.MotoService;
 
+/**
+ * Controller para gerenciar Motos
+ * Segue Single Responsibility Principle - apenas gerencia motos
+ * Status de motos foi movido para StatusMotoController
+ */
 @Controller
 public class MotoController {
 
+    private static final Logger logger = LoggerFactory.getLogger(MotoController.class);
+    
     @Autowired
     private MotoRepository motoRepository;
     
     @Autowired
-    private StatusMotosRepository statusMotosRepository;
+    private AuthenticationService authenticationService;
     
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private MotoService motoService;
     
 
     @GetMapping("/teste")
@@ -42,9 +48,7 @@ public class MotoController {
     public ModelAndView listarMotos() {
         ModelAndView mv = new ModelAndView("/motos/lista");
         
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        usuarioRepository.findByEmail(auth.getName())
-            .ifPresent(usuario -> mv.addObject("usuario_logado", usuario));
+        authenticationService.adicionarUsuarioLogado(mv);
         
         List<Moto> motos = motoRepository.findAll();
         mv.addObject("motos", motos);
@@ -54,27 +58,21 @@ public class MotoController {
 
     @GetMapping("/motos/novo")
     public ModelAndView novoCadastroMoto() {
-        System.out.println("=== NOVO CADASTRO DE MOTO ===");
+        logger.debug("Novo cadastro de moto");
         try {
-            System.out.println("Criando ModelAndView...");
-            ModelAndView mv = new ModelAndView("/motos/cadastroMotos");
-            
-            System.out.println("Obtendo autenticação...");
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            System.out.println("Auth: " + auth);
-            System.out.println("Auth name: " + (auth != null ? auth.getName() : "null"));
-            
-            if (auth != null && auth.getName() != null && !auth.getName().equals("anonymousUser")) {
-                usuarioRepository.findByEmail(auth.getName())
-                    .ifPresent(usuario -> mv.addObject("usuario_logado", usuario));
-            } else {
+            if (!authenticationService.isAuthenticated()) {
+                logger.warn("Usuário não autenticado tentando cadastrar moto");
                 return new ModelAndView("redirect:/login");
             }
+            
+            ModelAndView mv = new ModelAndView("/motos/cadastroMotos");
+            authenticationService.adicionarUsuarioLogado(mv);
             
             mv.addObject("moto", new Moto());
             mv.addObject("editando", false);
             return mv;
         } catch (Exception e) {
+            logger.error("Erro ao criar novo cadastro de moto: {}", e.getMessage(), e);
             ModelAndView mv = new ModelAndView("error/500");
             mv.addObject("error", "Erro interno: " + e.getMessage());
             return mv;
@@ -83,16 +81,11 @@ public class MotoController {
 
     @PostMapping("/motos/salvar")
     public ModelAndView salvarMoto(Moto moto) {
-        System.out.println("=== SALVANDO MOTO ===");
-        System.out.println("Moto recebida: " + moto);
+        logger.info("Salvando moto: placa={}, chassi={}", moto.getPlaca(), moto.getChassi());
         
         try {
             // Obter usuário logado
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            Usuario usuarioLogado = null;
-            if (auth != null && auth.getName() != null && !auth.getName().equals("anonymousUser")) {
-                usuarioLogado = usuarioRepository.findByEmail(auth.getName()).orElse(null);
-            }
+            Usuario usuarioLogado = authenticationService.getUsuarioLogado();
 
             // Validações básicas
             if (moto.getPlaca() == null || moto.getPlaca().trim().isEmpty()) {
@@ -118,31 +111,30 @@ public class MotoController {
             }
 
             // Verificar se placa já existe
-            if (motoRepository.findByPlaca(moto.getPlaca()).isPresent()) {
+            if (motoService.placaExiste(moto.getPlaca())) {
+                logger.warn("Tentativa de cadastrar placa já existente: {}", moto.getPlaca());
                 ModelAndView mv = new ModelAndView("/motos/cadastroMotos");
                 mv.addObject("moto", moto);
                 mv.addObject("editando", false);
                 mv.addObject("erro", "Placa já cadastrada no sistema!");
-                if (usuarioLogado != null) {
-                    mv.addObject("usuario_logado", usuarioLogado);
-                }
+                authenticationService.adicionarUsuarioLogado(mv);
                 return mv;
             }
 
             // Verificar se chassi já existe
-            if (motoRepository.findByChassi(moto.getChassi()).isPresent()) {
+            if (motoService.chassiExiste(moto.getChassi())) {
+                logger.warn("Tentativa de cadastrar chassi já existente: {}", moto.getChassi());
                 ModelAndView mv = new ModelAndView("/motos/cadastroMotos");
                 mv.addObject("moto", moto);
                 mv.addObject("editando", false);
                 mv.addObject("erro", "Chassi já cadastrado no sistema!");
-                if (usuarioLogado != null) {
-                    mv.addObject("usuario_logado", usuarioLogado);
-                }
+                authenticationService.adicionarUsuarioLogado(mv);
                 return mv;
             }
 
             // Verificar autenticação
             if (usuarioLogado == null) {
+                logger.warn("Tentativa de salvar moto sem autenticação");
                 ModelAndView mv = new ModelAndView("/motos/cadastroMotos");
                 mv.addObject("moto", moto);
                 mv.addObject("editando", false);
@@ -151,130 +143,23 @@ public class MotoController {
             }
 
             // Salvar moto
-            moto.setUsuario(usuarioLogado);
             moto.setDataCriacao(LocalDateTime.now());
-            
-            System.out.println("Salvando moto: " + moto);
-            Moto motoSalva = motoRepository.save(moto);
-            System.out.println("Moto salva com sucesso! ID: " + motoSalva.getId());
+            motoService.salvarMoto(moto, usuarioLogado);
             
             return new ModelAndView("redirect:/motos?sucesso=true");
             
         } catch (Exception e) {
-            System.err.println("Erro ao salvar moto: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Erro ao salvar moto: {}", e.getMessage(), e);
             
             ModelAndView mv = new ModelAndView("/motos/cadastroMotos");
             mv.addObject("moto", moto);
             mv.addObject("editando", false);
             mv.addObject("erro", "Erro interno do servidor: " + e.getMessage());
-            
-            // Adicionar usuário logado no catch também
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getName() != null && !auth.getName().equals("anonymousUser")) {
-                usuarioRepository.findByEmail(auth.getName())
-                    .ifPresent(usuario -> mv.addObject("usuario_logado", usuario));
-            }
+            authenticationService.adicionarUsuarioLogado(mv);
             
             return mv;
         }
     }
-
-    @GetMapping("/motos/status/novo")
-    public ModelAndView novoStatusMoto() {
-        System.out.println("=== NOVO STATUS DE MOTO ===");
-        try {
-            System.out.println("Criando ModelAndView...");
-            ModelAndView mv = new ModelAndView("/motos/cadastroStatusMoto");
-            
-            System.out.println("Obtendo autenticação...");
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            System.out.println("Auth: " + auth);
-            System.out.println("Auth name: " + (auth != null ? auth.getName() : "null"));
-            
-            if (auth != null && auth.getName() != null) {
-                System.out.println("Buscando usuário no banco...");
-                usuarioRepository.findByEmail(auth.getName())
-                    .ifPresent(usuario -> {
-                        System.out.println("Usuário encontrado: " + usuario.getNomeFilial());
-                        mv.addObject("usuario_logado", usuario);
-                    });
-            }
-            
-            System.out.println("Buscando motos...");
-            mv.addObject("statusMoto", new StatusMoto());
-            mv.addObject("motos", motoRepository.findAll());
-            mv.addObject("status", new String[]{"PENDENTE", "REPARO_SIMPLES", "DANOS_ESTRUTURAIS", "MOTOR_DEFEITUOSO", "MANUTENCAO_AGENDADA", "PRONTA", "SEM_PLACA", "ALUGADA", "AGUARDANDO_ALUGUEL"});
-            mv.addObject("editando", false);
-            
-            System.out.println("ModelAndView criado com sucesso");
-            System.out.println("Objetos no ModelAndView: " + mv.getModel());
-            return mv;
-        } catch (Exception e) {
-            System.out.println("ERRO no novoStatusMoto: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
-    }
-
-    @PostMapping("/motos/status/salvar")
-    public ModelAndView salvarStatusMoto(StatusMoto statusMoto) {
-        System.out.println("=== SALVANDO STATUS DE MOTO ===");
-        System.out.println("StatusMoto recebido: " + statusMoto);
-        
-        try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            System.out.println("Auth: " + auth);
-            
-            if (auth != null && auth.getName() != null) {
-                usuarioRepository.findByEmail(auth.getName())
-                    .ifPresent(usuario -> {
-                        System.out.println("Usuário encontrado: " + usuario.getNomeFilial());
-                        
-                        // Buscar a moto pelo ID
-                        if (statusMoto.getMoto() != null && statusMoto.getMoto().getId() != null) {
-                            Long motoId = statusMoto.getMoto().getId();
-                            System.out.println("Buscando moto com ID: " + motoId);
-                            
-                            motoRepository.findById(motoId).ifPresent(moto -> {
-                                System.out.println("Moto encontrada: " + moto.getPlaca());
-                                statusMoto.setMoto(moto);
-                                statusMoto.setUsuario(usuario);
-                                statusMoto.setDataCriacao(LocalDateTime.now());
-                                
-                                System.out.println("Salvando status no banco...");
-                                StatusMoto statusSalvo = statusMotosRepository.save(statusMoto);
-                                System.out.println("Status salvo com ID: " + statusSalvo.getId());
-                            });
-                        } else {
-                            System.out.println("ID da moto não fornecido!");
-                        }
-                    });
-            } else {
-                System.out.println("Usuário não autenticado!");
-                ModelAndView mv = new ModelAndView("/motos/cadastroStatusMoto");
-                mv.addObject("statusMoto", new StatusMoto());
-                mv.addObject("motos", motoRepository.findAll());
-                mv.addObject("status", new String[]{"PENDENTE", "REPARO_SIMPLES", "DANOS_ESTRUTURAIS", "MOTOR_DEFEITUOSO", "MANUTENCAO_AGENDADA", "PRONTA", "SEM_PLACA", "ALUGADA", "AGUARDANDO_ALUGUEL"});
-                mv.addObject("editando", false);
-                mv.addObject("erro", "Usuário não autenticado");
-                return mv;
-            }
-            
-            return new ModelAndView("redirect:/motos?sucesso=true");
-        } catch (Exception e) {
-            System.out.println("ERRO ao salvar status: " + e.getMessage());
-            e.printStackTrace();
-            ModelAndView mv = new ModelAndView("/motos/cadastroStatusMoto");
-            mv.addObject("statusMoto", new StatusMoto());
-            mv.addObject("motos", motoRepository.findAll());
-            mv.addObject("status", new String[]{"PENDENTE", "REPARO_SIMPLES", "DANOS_ESTRUTURAIS", "MOTOR_DEFEITUOSO", "MANUTENCAO_AGENDADA", "PRONTA", "SEM_PLACA", "ALUGADA", "AGUARDANDO_ALUGUEL"});
-            mv.addObject("editando", false);
-            mv.addObject("erro", "Erro ao salvar status: " + e.getMessage());
-            return mv;
-        }
-    }
-
 
     @GetMapping("/motos/auditoria")
     public String auditoriaMotos() {
@@ -283,41 +168,28 @@ public class MotoController {
 
     @GetMapping("/motos/editar/{id}")
     public ModelAndView editarMoto(@PathVariable Long id) {
-        System.out.println("=== EDITANDO MOTO ===");
-        System.out.println("ID da moto: " + id);
+        logger.debug("Editando moto: id={}", id);
         
         try {
             ModelAndView mv = new ModelAndView("/motos/cadastroMotos");
-            
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getName() != null) {
-                usuarioRepository.findByEmail(auth.getName())
-                    .ifPresent(usuario -> {
-                        System.out.println("Usuário encontrado: " + usuario.getNomeFilial());
-                        mv.addObject("usuario_logado", usuario);
-                    });
-            }
+            authenticationService.adicionarUsuarioLogado(mv);
             
             motoRepository.findById(id).ifPresent(moto -> {
-                System.out.println("Moto encontrada: " + moto.getPlaca());
+                logger.debug("Moto encontrada: placa={}", moto.getPlaca());
                 mv.addObject("moto", moto);
                 mv.addObject("editando", true);
             });
             
-            System.out.println("ModelAndView criado com sucesso");
             return mv;
         } catch (Exception e) {
-            System.out.println("ERRO ao editar moto: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Erro ao editar moto: id={}, erro={}", id, e.getMessage(), e);
             throw e;
         }
     }
 
     @PostMapping("/motos/atualizar")
     public ModelAndView atualizarMoto(Moto moto) {
-        System.out.println("=== ATUALIZANDO MOTO ===");
-        System.out.println("Moto recebida: " + moto);
-        System.out.println("ID da moto: " + moto.getId());
+        logger.info("Atualizando moto: id={}, placa={}", moto.getId(), moto.getPlaca());
         
         try {
             // Verificar se a moto existe
@@ -329,43 +201,30 @@ public class MotoController {
             Moto motoExistente = motoRepository.findById(moto.getId())
                 .orElseThrow(() -> new RuntimeException("Moto não encontrada com ID: " + moto.getId()));
             
-            System.out.println("Moto existente encontrada: " + motoExistente.getPlaca());
+            logger.debug("Moto existente encontrada: placa={}", motoExistente.getPlaca());
             
             // Verificar se a placa está sendo alterada e se já existe
             if (!motoExistente.getPlaca().equals(moto.getPlaca())) {
-                if (motoRepository.findByPlaca(moto.getPlaca()).isPresent()) {
+                if (!motoService.podeAlterarPlaca(moto.getId(), moto.getPlaca())) {
                     throw new RuntimeException("Placa já cadastrada no sistema!");
                 }
             }
             
             // Verificar se o chassi está sendo alterado e se já existe
             if (!motoExistente.getChassi().equals(moto.getChassi())) {
-                if (motoRepository.findByChassi(moto.getChassi()).isPresent()) {
+                if (!motoService.podeAlterarChassi(moto.getId(), moto.getChassi())) {
                     throw new RuntimeException("Chassi já cadastrado no sistema!");
                 }
             }
             
             // Atualizar apenas os campos permitidos
-            motoExistente.setPlaca(moto.getPlaca());
-            motoExistente.setChassi(moto.getChassi());
-            motoExistente.setMotor(moto.getMotor());
-            
-            // Manter o usuário e data de criação originais
-            System.out.println("Salvando moto atualizada...");
-            motoRepository.save(motoExistente);
-            System.out.println("Moto atualizada com sucesso!");
+            motoService.atualizarMoto(motoExistente, moto);
             
             return new ModelAndView("redirect:/motos?sucesso=true");
         } catch (Exception e) {
-            System.out.println("ERRO ao atualizar moto: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Erro ao atualizar moto: id={}, erro={}", moto.getId(), e.getMessage(), e);
             ModelAndView mv = new ModelAndView("/motos/cadastroMotos");
-            
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getName() != null) {
-                usuarioRepository.findByEmail(auth.getName())
-                    .ifPresent(usuario -> mv.addObject("usuario_logado", usuario));
-            }
+            authenticationService.adicionarUsuarioLogado(mv);
             
             mv.addObject("moto", moto);
             mv.addObject("editando", true);
@@ -376,231 +235,58 @@ public class MotoController {
 
     @GetMapping("/motos/teste")
     public ModelAndView testeCriacao() {
-        System.out.println("=== TESTE DE CRIAÇÃO ===");
+        logger.debug("Criando moto de teste");
         try {
+            Usuario usuario = authenticationService.getUsuarioLogado();
+            
+            if (usuario == null) {
+                logger.warn("Tentativa de criar moto de teste sem autenticação");
+                return new ModelAndView("redirect:/motos?erro=Usuário não autenticado");
+            }
+            
             // Criar uma moto de teste
             Moto motoTeste = new Moto();
             motoTeste.setPlaca("TEST123");
             motoTeste.setChassi("CHASSI123456789");
             motoTeste.setMotor("Motor Teste");
+            motoTeste.setUsuario(usuario);
+            motoTeste.setDataCriacao(LocalDateTime.now());
             
-            // Obter usuário logado
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getName() != null && !auth.getName().equals("anonymousUser")) {
-                usuarioRepository.findByEmail(auth.getName())
-                    .ifPresent(usuario -> {
-                        motoTeste.setUsuario(usuario);
-                        motoTeste.setDataCriacao(LocalDateTime.now());
-                        
-                        try {
-                            Moto motoSalva = motoRepository.save(motoTeste);
-                            System.out.println("Moto de teste criada com sucesso! ID: " + motoSalva.getId());
-                            
-                            // Criar status de teste para a moto
-                            StatusMoto statusTeste = new StatusMoto();
-                            statusTeste.setMoto(motoSalva);
-                            statusTeste.setStatus("PRONTA");
-                            statusTeste.setArea("Garagem Principal");
-                            statusTeste.setUsuario(usuario);
-                            statusTeste.setDataCriacao(LocalDateTime.now());
-                            
-                            StatusMoto statusSalvo = statusMotosRepository.save(statusTeste);
-                            System.out.println("Status de teste criado com sucesso! ID: " + statusSalvo.getId());
-                            
-                        } catch (Exception e) {
-                            System.err.println("Erro ao criar moto de teste: " + e.getMessage());
-                            e.printStackTrace();
-                        }
-                    });
+            try {
+                Moto motoSalva = motoRepository.save(motoTeste);
+                logger.info("Moto de teste criada com sucesso: id={}", motoSalva.getId());
+            } catch (Exception e) {
+                logger.error("Erro ao criar moto de teste: {}", e.getMessage(), e);
             }
             
             return new ModelAndView("redirect:/motos?sucesso=true");
         } catch (Exception e) {
-            System.err.println("Erro no teste: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Erro no teste de criação: {}", e.getMessage(), e);
             return new ModelAndView("redirect:/motos?erro=Erro no teste");
         }
     }
 
     @GetMapping("/motos/excluir/{id}")
     public ModelAndView excluirMoto(@PathVariable Long id) {
-        System.out.println("=== EXCLUINDO MOTO ===");
-        System.out.println("ID da moto a ser excluída: " + id);
+        logger.info("Excluindo moto: id={}", id);
         
         try {
             // Verificar se a moto existe
             Moto moto = motoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Moto não encontrada com ID: " + id));
             
-            System.out.println("Moto encontrada: " + moto.getPlaca());
-            
-            // Excluir status relacionados primeiro (se houver)
-            List<StatusMoto> statusRelacionados = statusMotosRepository.findByMotoId(id);
-            if (!statusRelacionados.isEmpty()) {
-                System.out.println("Excluindo " + statusRelacionados.size() + " status relacionados...");
-                statusMotosRepository.deleteAll(statusRelacionados);
-            }
+            logger.debug("Moto encontrada: placa={}", moto.getPlaca());
             
             // Excluir a moto
-            System.out.println("Excluindo moto...");
+            // Nota: Status relacionados serão excluídos automaticamente via cascade ou manualmente via StatusMotoController
             motoRepository.deleteById(id);
-            System.out.println("Moto excluída com sucesso!");
+            logger.info("Moto excluída com sucesso: id={}", id);
             
             return new ModelAndView("redirect:/motos?excluido=true");
         } catch (Exception e) {
-            System.out.println("ERRO ao excluir moto: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Erro ao excluir moto: id={}, erro={}", id, e.getMessage(), e);
             return new ModelAndView("redirect:/motos?erro=Erro ao excluir moto: " + e.getMessage());
         }
     }
 
-    @GetMapping("/motos/status/editar/{id}")
-    public ModelAndView editarStatusMoto(@PathVariable Long id) {
-        System.out.println("=== EDITANDO STATUS DE MOTO ===");
-        System.out.println("ID do status: " + id);
-        
-        try {
-            ModelAndView mv = new ModelAndView("/motos/cadastroStatusMoto");
-            
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getName() != null) {
-                usuarioRepository.findByEmail(auth.getName())
-                    .ifPresent(usuario -> {
-                        System.out.println("Usuário encontrado: " + usuario.getNomeFilial());
-                        mv.addObject("usuario_logado", usuario);
-                    });
-            }
-            
-            statusMotosRepository.findById(id).ifPresent(statusMoto -> {
-                System.out.println("Status encontrado: " + statusMoto.getStatus());
-                mv.addObject("statusMoto", statusMoto);
-                mv.addObject("editando", true);
-            });
-            
-            mv.addObject("motos", motoRepository.findAll());
-            mv.addObject("status", new String[]{"PENDENTE", "REPARO_SIMPLES", "DANOS_ESTRUTURAIS", "MOTOR_DEFEITUOSO", "MANUTENCAO_AGENDADA", "PRONTA", "SEM_PLACA", "ALUGADA", "AGUARDANDO_ALUGUEL"});
-            
-            System.out.println("ModelAndView criado com sucesso");
-            return mv;
-        } catch (Exception e) {
-            System.out.println("ERRO ao editar status: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
-    }
-
-    @PostMapping("/motos/status/atualizar")
-    public ModelAndView atualizarStatusMoto(StatusMoto statusMoto) {
-        System.out.println("=== ATUALIZANDO STATUS DE MOTO ===");
-        System.out.println("StatusMoto recebido: " + statusMoto);
-        
-        try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getName() != null) {
-                usuarioRepository.findByEmail(auth.getName())
-                    .ifPresent(usuario -> {
-                        System.out.println("Usuário encontrado: " + usuario.getNomeFilial());
-                        
-                        // Buscar a moto pelo ID
-                        if (statusMoto.getMoto() != null && statusMoto.getMoto().getId() != null) {
-                            Long motoId = statusMoto.getMoto().getId();
-                            System.out.println("Buscando moto com ID: " + motoId);
-                            
-                            motoRepository.findById(motoId).ifPresent(moto -> {
-                                System.out.println("Moto encontrada: " + moto.getPlaca());
-                                statusMoto.setMoto(moto);
-                                statusMoto.setUsuario(usuario);
-                                statusMoto.setDataCriacao(LocalDateTime.now());
-                                
-                                System.out.println("Atualizando status no banco...");
-                                StatusMoto statusAtualizado = statusMotosRepository.save(statusMoto);
-                                System.out.println("Status atualizado com ID: " + statusAtualizado.getId());
-                            });
-                        } else {
-                            System.out.println("ID da moto não fornecido!");
-                        }
-                    });
-            } else {
-                System.out.println("Usuário não autenticado!");
-                ModelAndView mv = new ModelAndView("/motos/cadastroStatusMoto");
-                mv.addObject("statusMoto", statusMoto);
-                mv.addObject("motos", motoRepository.findAll());
-                mv.addObject("status", new String[]{"PENDENTE", "REPARO_SIMPLES", "DANOS_ESTRUTURAIS", "MOTOR_DEFEITUOSO", "MANUTENCAO_AGENDADA", "PRONTA", "SEM_PLACA", "ALUGADA", "AGUARDANDO_ALUGUEL"});
-                mv.addObject("editando", true);
-                mv.addObject("erro", "Usuário não autenticado");
-                return mv;
-            }
-            
-            return new ModelAndView("redirect:/motos/operacoes?sucesso=true");
-        } catch (Exception e) {
-            System.out.println("ERRO ao atualizar status: " + e.getMessage());
-            e.printStackTrace();
-            ModelAndView mv = new ModelAndView("/motos/cadastroStatusMoto");
-            mv.addObject("statusMoto", statusMoto);
-            mv.addObject("motos", motoRepository.findAll());
-            mv.addObject("status", new String[]{"PENDENTE", "REPARO_SIMPLES", "DANOS_ESTRUTURAIS", "MOTOR_DEFEITUOSO", "MANUTENCAO_AGENDADA", "PRONTA", "SEM_PLACA", "ALUGADA", "AGUARDANDO_ALUGUEL"});
-            mv.addObject("editando", true);
-            mv.addObject("erro", "Erro ao atualizar status: " + e.getMessage());
-            return mv;
-        }
-    }
-
-    @GetMapping("/motos/status/excluir/{id}")
-    public ModelAndView excluirStatusMoto(@PathVariable Long id) {
-        statusMotosRepository.deleteById(id);
-        return new ModelAndView("redirect:/motos/operacoes");
-    }
-
-    @GetMapping("/motos/operacoes")
-    public ModelAndView listarStatusMotos() {
-        System.out.println("=== LISTANDO STATUS DAS MOTOS ===");
-        try {
-            ModelAndView mv = new ModelAndView("/motos/operacoes");
-            
-            // Obter usuário logado
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getName() != null && !auth.getName().equals("anonymousUser")) {
-                usuarioRepository.findByEmail(auth.getName())
-                    .ifPresent(usuario -> {
-                        System.out.println("Usuário logado: " + usuario.getNomeFilial());
-                        mv.addObject("usuario_logado", usuario);
-                    });
-            } else {
-                System.out.println("Usuário não autenticado, redirecionando para login");
-                return new ModelAndView("redirect:/login");
-            }
-            
-            // Buscar status das motos
-            System.out.println("Buscando status das motos...");
-            List<StatusMoto> statusMotos = statusMotosRepository.findAll();
-            System.out.println("Total de status encontrados: " + (statusMotos != null ? statusMotos.size() : 0));
-            
-            // Se não há dados, criar uma lista vazia
-            if (statusMotos == null) {
-                System.out.println("Lista de status é null, criando lista vazia");
-                statusMotos = new java.util.ArrayList<>();
-            }
-            
-            mv.addObject("statusMotos", statusMotos);
-            
-            System.out.println("ModelAndView criado com sucesso");
-            return mv;
-        } catch (Exception e) {
-            System.err.println("ERRO ao listar status das motos: " + e.getMessage());
-            e.printStackTrace();
-            
-            ModelAndView mv = new ModelAndView("/motos/operacoes");
-            mv.addObject("statusMotos", new java.util.ArrayList<>());
-            mv.addObject("erro", "Erro ao carregar status das motos: " + e.getMessage());
-            
-            // Adicionar usuário logado mesmo em caso de erro
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getName() != null && !auth.getName().equals("anonymousUser")) {
-                usuarioRepository.findByEmail(auth.getName())
-                    .ifPresent(usuario -> mv.addObject("usuario_logado", usuario));
-            }
-            
-            return mv;
-        }
-    }
 }

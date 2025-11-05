@@ -23,6 +23,7 @@ public class SegurancaConfig {
 				.requestMatchers("/usuario/lista", "/usuario/excluir/**").hasRole("ADMIN")
 				.requestMatchers("/dashboard", "/relatorios/**").hasAnyRole("ADMIN", "GERENTE")
 				.requestMatchers("/motos/**", "/operacoes/**").hasAnyRole("ADMIN", "GERENTE", "OPERADOR")
+				.requestMatchers("/ai/**").authenticated()
 				.requestMatchers("/acesso_negado").permitAll()
 				// Todas as outras rotas requerem autenticação
 				.anyRequest().authenticated())
@@ -33,15 +34,12 @@ public class SegurancaConfig {
 				.exceptionHandling(exception -> exception.accessDeniedHandler((request, response, ex) -> {
 					response.sendRedirect("/acesso_negado");
 				}))
-				.csrf(csrf -> csrf.ignoringRequestMatchers("/logout"))
-				.sessionManagement(session -> session
-					.maximumSessions(1)
-					.maxSessionsPreventsLogin(false)
-					.sessionRegistry(sessionRegistry()))
+				.csrf(csrf -> csrf.ignoringRequestMatchers("/logout", "/ai/perguntar", "/ai/analisar-operacao"))
 				.sessionManagement(session -> session
 					.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED)
 					.maximumSessions(1)
-					.maxSessionsPreventsLogin(false));
+					.maxSessionsPreventsLogin(false)
+					.sessionRegistry(sessionRegistry()));
 
 		return http.build();
 	}

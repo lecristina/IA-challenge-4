@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,8 @@ import br.com.fiap.universidade_fiap.repository.UsuarioRepository;
 @Service
 @ConditionalOnProperty(value = "app.data.init.enabled", havingValue = "true")
 public class DataInitializationService implements CommandLineRunner {
+
+    private static final Logger logger = LoggerFactory.getLogger(DataInitializationService.class);
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -81,15 +85,15 @@ public class DataInitializationService implements CommandLineRunner {
         for (Usuario usuario : usuarios) {
             usuarioRepository.save(usuario);
         }
-        System.out.println("Usuários criados: " + usuarios.size());
+        logger.info("Usuários criados: {}", usuarios.size());
     }
     
     private void createMotos() {
-        System.out.println("Criando motos...");
+        logger.debug("Criando motos...");
         
         Usuario admin = usuarioRepository.findByEmail("admin@teste.com").orElse(null);
         if (admin == null) {
-            System.out.println("Usuário admin não encontrado!");
+            logger.error("Usuário admin não encontrado! Não é possível criar motos.");
             return;
         }
         
@@ -107,21 +111,21 @@ public class DataInitializationService implements CommandLineRunner {
         );
         
         motoRepository.saveAll(motos);
-        System.out.println("Motos criadas: " + motos.size());
+        logger.info("Motos criadas: {}", motos.size());
     }
     
     private void createStatusMotos() {
-        System.out.println("Criando status das motos...");
+        logger.debug("Criando status das motos...");
         
         Usuario admin = usuarioRepository.findByEmail("admin@teste.com").orElse(null);
         if (admin == null) {
-            System.out.println("Usuário admin não encontrado!");
+            logger.error("Usuário admin não encontrado! Não é possível criar status.");
             return;
         }
         
         List<Moto> motos = motoRepository.findAll();
         if (motos.isEmpty()) {
-            System.out.println("Nenhuma moto encontrada!");
+            logger.warn("Nenhuma moto encontrada! Não é possível criar status.");
             return;
         }
         
@@ -139,6 +143,6 @@ public class DataInitializationService implements CommandLineRunner {
         );
         
         statusMotosRepository.saveAll(statusMotos);
-        System.out.println("Status das motos criados: " + statusMotos.size());
+        logger.info("Status das motos criados: {}", statusMotos.size());
     }
 }

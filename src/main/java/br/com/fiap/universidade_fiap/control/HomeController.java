@@ -27,10 +27,13 @@ public class HomeController {
         ModelAndView mv = new ModelAndView("home/index");
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-
-        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
-        usuarioOpt.ifPresent(u -> mv.addObject("usuario_logado", u));
+        
+        // Verificar se o usuário está autenticado
+        if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
+            String email = auth.getName();
+            Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(email);
+            usuarioOpt.ifPresent(u -> mv.addObject("usuario_logado", u));
+        }
 
         mv.addObject("motos", motoRepository.findAll());
 

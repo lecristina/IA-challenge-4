@@ -1,7 +1,7 @@
 package br.com.fiap.universidade_fiap.control;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -16,25 +16,28 @@ import java.util.List;
 // EnumPerfil removido - usando String agora
 import br.com.fiap.universidade_fiap.model.Usuario;
 import br.com.fiap.universidade_fiap.repository.UsuarioRepository;
+import br.com.fiap.universidade_fiap.service.AuthenticationService;
 import jakarta.validation.Valid;
 
 @Controller
 public class UsuarioController {
 
+	private static final Logger logger = LoggerFactory.getLogger(UsuarioController.class);
+	
 	private final PasswordEncoder encoder;
 	private final UsuarioRepository repU;
+	private final AuthenticationService authenticationService;
 
-	public UsuarioController(PasswordEncoder encoder, UsuarioRepository repU) {
+	public UsuarioController(PasswordEncoder encoder, UsuarioRepository repU, AuthenticationService authenticationService) {
 		this.encoder = encoder;
 		this.repU = repU;
+		this.authenticationService = authenticationService;
 	}
 
 	@GetMapping("/usuario/novo")
 	public ModelAndView retornarCadUsuario() {
 		ModelAndView mv = new ModelAndView("/usuario/novo");
-
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		repU.findByEmail(auth.getName()).ifPresent(usuario -> mv.addObject("usuario_logado", usuario));
+		authenticationService.adicionarUsuarioLogado(mv);
 
 		mv.addObject("usuario", new Usuario());
 		mv.addObject("perfis", new String[]{"ADMIN", "GERENTE", "OPERADOR"});
@@ -44,29 +47,14 @@ public class UsuarioController {
     @PostMapping("/insere_usuario")
     public ModelAndView inserirUsuario(@Valid @ModelAttribute Usuario usuario, BindingResult bindingResult) {
         ModelAndView mv = new ModelAndView();
-
-        // Log de debug para cadastro de usuário
-        System.out.println("=== CADASTRO DE USUÁRIO ===");
-        System.out.println("Nome: " + (usuario != null ? usuario.getNomeFilial() : "null"));
-        System.out.println("Email: " + (usuario != null ? usuario.getEmail() : "null"));
-        System.out.println("CNPJ: " + (usuario != null ? usuario.getCnpj() : "null"));
-        System.out.println("Perfil: " + (usuario != null ? usuario.getPerfil() : "null"));
-        System.out.println("Tem erros de validação: " + bindingResult.hasErrors());
+        logger.info("Cadastrando usuário: email={}, nomeFilial={}", usuario.getEmail(), usuario.getNomeFilial());
 
         try {
-            // Adicionar usuário logado para o navbar
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getName() != null) {
-                repU.findByEmail(auth.getName()).ifPresent(u -> mv.addObject("usuario_logado", u));
-            }
+            authenticationService.adicionarUsuarioLogado(mv);
 
             // Verificar erros de validação
             if (bindingResult.hasErrors()) {
-                System.out.println("Erros de validação encontrados:");
-                bindingResult.getAllErrors().forEach(error -> {
-                    System.out.println("- " + error.getDefaultMessage());
-                });
-                
+                logger.warn("Erros de validação ao cadastrar usuário: {}", bindingResult.getAllErrors());
                 mv.setViewName("/usuario/novo");
                 mv.addObject("usuario", usuario);
                 mv.addObject("perfis", new String[]{"ADMIN", "GERENTE", "OPERADOR"});
@@ -79,7 +67,7 @@ public class UsuarioController {
             
             // Verificar se email já existe
             if (repU.findByEmail(usuario.getEmail()).isPresent()) {
-                System.out.println("Email já existe: " + usuario.getEmail());
+                logger.warn("Tentativa de cadastrar email já existente: {}", usuario.getEmail());
                 return criarModelViewComErro(mv, usuario, "E-mail já cadastrado no sistema!");
             }
 
@@ -88,74 +76,64 @@ public class UsuarioController {
                     .anyMatch(u -> u.getCnpj().replaceAll("[^0-9]", "").equals(cnpjLimpo));
             
             if (cnpjExiste) {
-                System.out.println("CNPJ já existe: " + usuario.getCnpj());
+                logger.warn("Tentativa de cadastrar CNPJ já existente: {}", usuario.getCnpj());
                 return criarModelViewComErro(mv, usuario, "CNPJ já cadastrado no sistema!");
             }
 
             // Validar senha
             if (usuario.getSenhaHash() == null || usuario.getSenhaHash().trim().isEmpty()) {
-                System.out.println("Senha não fornecida");
+                logger.warn("Tentativa de cadastrar usuário sem senha");
                 return criarModelViewComErro(mv, usuario, "Senha é obrigatória!");
             }
 
             // Criptografar senha e salvar usuário
-            System.out.println("Criptografando senha...");
             usuario.setSenhaHash(encoder.encode(usuario.getSenhaHash()));
-            
-            System.out.println("Salvando usuário no banco...");
             Usuario usuarioSalvo = repU.save(usuario);
-            System.out.println("Usuário salvo com ID: " + usuarioSalvo.getId());
+            logger.info("Usuário cadastrado com sucesso: id={}, email={}", usuarioSalvo.getId(), usuarioSalvo.getEmail());
 
             mv.setViewName("redirect:/usuario/novo?sucesso=true");
             return mv;
         } catch (Exception e) {
-            System.out.println("ERRO ao cadastrar usuário: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Erro ao cadastrar usuário: {}", e.getMessage(), e);
             return criarModelViewComErro(mv, usuario, "Erro interno do servidor: " + e.getMessage());
         }
     }
 
     @GetMapping("/usuario/lista")
     public ModelAndView listarUsuarios() {
-        System.out.println("=== LISTANDO USUÁRIOS ===");
+        logger.debug("Listando usuários");
         ModelAndView mv = new ModelAndView("/usuario/lista");
         try {
-            // Adicionar usuário logado para o navbar
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            repU.findByEmail(auth.getName()).ifPresent(usuario -> mv.addObject("usuario_logado", usuario));
+            authenticationService.adicionarUsuarioLogado(mv);
             
             List<Usuario> usuarios = repU.findAll();
-            System.out.println("Total de usuários: " + usuarios.size());
+            logger.debug("Total de usuários encontrados: {}", usuarios.size());
             mv.addObject("usuarios", usuarios);
             return mv;
         } catch (Exception e) {
-            System.out.println("ERRO ao listar usuários: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Erro ao listar usuários: {}", e.getMessage(), e);
             throw e;
         }
     }
 
     @GetMapping("/usuario/excluir/{id}")
     public ModelAndView excluirUsuario(@PathVariable Long id) {
-        System.out.println("=== EXCLUINDO USUÁRIO ===");
-        System.out.println("ID do usuário a ser excluído: " + id);
+        logger.info("Excluindo usuário: id={}", id);
         
         try {
             // Verificar se o usuário existe
             Usuario usuario = repU.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
             
-            System.out.println("Usuário encontrado: " + usuario.getEmail());
+            logger.debug("Usuário encontrado: email={}", usuario.getEmail());
             
             // Excluir o usuário
-            System.out.println("Excluindo usuário...");
             repU.deleteById(id);
-            System.out.println("Usuário excluído com sucesso!");
+            logger.info("Usuário excluído com sucesso: id={}", id);
             
             return new ModelAndView("redirect:/usuario/lista?sucesso=true");
         } catch (Exception e) {
-            System.out.println("ERRO ao excluir usuário: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Erro ao excluir usuário: id={}, erro={}", id, e.getMessage(), e);
             return new ModelAndView("redirect:/usuario/lista?erro=" + e.getMessage());
         }
     }
