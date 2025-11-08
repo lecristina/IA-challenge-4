@@ -112,3 +112,5 @@
 **Desenvolvido com ❤️ integrando Spring AI de forma elegante!**
 
 
+
+

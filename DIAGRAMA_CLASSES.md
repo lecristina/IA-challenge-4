@@ -160,3 +160,5 @@
 **Diagrama criado para demonstrar a arquitetura do sistema TrackZone**
 
 
+
+
