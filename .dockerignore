@@ -1,0 +1,14 @@
+target/
+.git/
+.gitignore
+.idea/
+*.iml
+.vscode/
+*.log
+.DS_Store
+node_modules/
+README.md
+*.md
+!GUIA_INTEGRACAO_ESP32.md
+
+

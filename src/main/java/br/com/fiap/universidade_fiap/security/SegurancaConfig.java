@@ -34,7 +34,7 @@ public class SegurancaConfig {
 				.exceptionHandling(exception -> exception.accessDeniedHandler((request, response, ex) -> {
 					response.sendRedirect("/acesso_negado");
 				}))
-				.csrf(csrf -> csrf.ignoringRequestMatchers("/logout", "/ai/perguntar", "/ai/analisar-operacao"))
+				.csrf(csrf -> csrf.ignoringRequestMatchers("/logout", "/ai/perguntar", "/ai/analisar-operacao", "/disruptive-architectures/ativar-led"))
 				.sessionManagement(session -> session
 					.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED)
 					.maximumSessions(1)
