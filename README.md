@@ -1210,54 +1210,215 @@ public boolean isLEDAtivo(String placa) {
 - Remove automaticamente se expirou (30 segundos)
 - Thread-safe usando ConcurrentHashMap
 
-#### 4. **Código Arduino para ESP8266/ESP32** (`ESP32_LED_EXAMPLE.ino`)
+#### 4. **Código Arduino Completo para ESP8266/ESP32** (`ESP32_LED_EXAMPLE.ino`)
+
+**Código completo com explicação linha por linha:**
 
 ```cpp
-#include <WiFi.h>
-#include <WebServer.h>
-#include <ArduinoJson.h>
+/*
+ * Código ESP32/ESP8266 para controlar LED via HTTP REST
+ * 
+ * Hardware necessário:
+ * - ESP8266 (recomendado) ou ESP32
+ * - LED conectado ao pino GPIO 2
+ * - Resistor 220Ω entre LED e GND
+ * 
+ * Conexões:
+ * - LED positivo (ânodo) -> GPIO 2
+ * - LED negativo (cátodo) -> Resistor 220Ω -> GND
+ */
 
-const char* ssid = "SEU_WIFI_SSID";
-const char* password = "SUA_SENHA_WIFI";
-const int LED_PIN = 2;
-const unsigned long LED_DURATION = 30000; // 30 segundos
+// Bibliotecas necessárias
+#include <WiFi.h>          // Para conexão WiFi
+#include <WebServer.h>     // Para servidor HTTP
+#include <ArduinoJson.h>   // Para parsing JSON
 
-WebServer server(80);
-unsigned long ledStartTime = 0;
-bool ledActive = false;
+// ========== CONFIGURAÇÃO WIFI ==========
+const char* ssid = "SEU_WIFI_SSID";        // Nome da sua rede WiFi
+const char* password = "SUA_SENHA_WIFI";   // Senha da sua rede WiFi
 
+// ========== CONFIGURAÇÃO DO LED ==========
+const int LED_PIN = 2;                     // Pino GPIO 2 (pode ser outro)
+const unsigned long LED_DURATION = 30000;  // 30 segundos em millisegundos
+
+// ========== SERVIDOR WEB ==========
+WebServer server(80);  // Servidor HTTP na porta 80
+
+// ========== VARIÁVEIS DE CONTROLE ==========
+unsigned long ledStartTime = 0;  // Timestamp de quando LED foi ativado
+bool ledActive = false;           // Flag para saber se LED está ativo
+String placaAtiva = "";           // Placa da moto que ativou o LED
+
+// ========== SETUP (Executa uma vez ao iniciar) ==========
 void setup() {
+  Serial.begin(115200);  // Inicia comunicação serial (115200 baud)
+  delay(1000);
+  
+  // Configurar pino do LED como saída
   pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);  // Garantir que LED inicia desligado
+  
+  // Conectar ao WiFi
+  Serial.println();
+  Serial.print("Conectando ao WiFi: ");
+  Serial.println(ssid);
+  
   WiFi.begin(ssid, password);
   
-  server.on("/led/ativar", HTTP_POST, handleAtivarLED);
-  server.on("/led/status", HTTP_GET, handleStatusLED);
+  // Aguardar conexão WiFi
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  
+  Serial.println();
+  Serial.println("WiFi conectado!");
+  Serial.print("IP do ESP8266: ");
+  Serial.println(WiFi.localIP());  // Mostra IP na serial
+  
+  // ========== CONFIGURAR ROTAS HTTP ==========
+  server.on("/led/ativar", HTTP_POST, handleAtivarLED);  // POST para ativar LED
+  server.on("/led/status", HTTP_GET, handleStatusLED);   // GET para verificar status
+  server.on("/", HTTP_GET, handleRoot);                  // GET para página raiz
+  
+  // Iniciar servidor HTTP
   server.begin();
+  Serial.println("Servidor HTTP iniciado!");
+  Serial.println("Acesse http://" + WiFi.localIP().toString() + " para ver o status");
 }
 
+// ========== LOOP (Executa continuamente) ==========
 void loop() {
-  server.handleClient();
+  server.handleClient();  // Processar requisições HTTP
   
+  // Controlar LED piscando
   if (ledActive) {
-    // Piscar LED (500ms ligado, 500ms desligado)
-    int blinkState = (millis() / 500) % 2;
+    unsigned long currentTime = millis();
+    unsigned long elapsedTime = currentTime - ledStartTime;
+    
+    // Piscar LED: 500ms ligado, 500ms desligado (1Hz)
+    int blinkState = (currentTime / 500) % 2;
     digitalWrite(LED_PIN, blinkState);
     
     // Desativar após 30 segundos
-    if (millis() - ledStartTime >= LED_DURATION) {
+    if (elapsedTime >= LED_DURATION) {
       ledActive = false;
       digitalWrite(LED_PIN, LOW);
+      placaAtiva = "";
+      Serial.println("LED desativado automaticamente após 30 segundos");
     }
+  } else {
+    digitalWrite(LED_PIN, LOW);  // Garantir LED desligado
   }
+  
+  delay(10);  // Pequeno delay para não sobrecarregar CPU
+}
+
+// ========== HANDLER: Ativar LED (POST /led/ativar) ==========
+void handleAtivarLED() {
+  if (server.hasArg("plain")) {
+    String body = server.arg("plain");  // Ler body da requisição
+    
+    // Parse JSON
+    StaticJsonDocument<200> doc;
+    DeserializationError error = deserializeJson(doc, body);
+    
+    if (error) {
+      // Erro ao parsear JSON
+      server.send(400, "application/json", "{\"erro\":\"JSON inválido\"}");
+      return;
+    }
+    
+    String placa = doc["placa"].as<String>();  // Extrair placa do JSON
+    
+    if (placa.length() > 0) {
+      // Ativar LED
+      ledActive = true;
+      ledStartTime = millis();  // Registrar timestamp
+      placaAtiva = placa;
+      
+      Serial.print("LED ativado para placa: ");
+      Serial.println(placa);
+      
+      // Resposta JSON de sucesso
+      server.send(200, "application/json", 
+        "{\"sucesso\":true,\"mensagem\":\"LED ativado\",\"placa\":\"" + placa + "\"}");
+    } else {
+      // Placa não informada
+      server.send(400, "application/json", "{\"erro\":\"Placa não informada\"}");
+    }
+  } else {
+    // Body vazio
+    server.send(400, "application/json", "{\"erro\":\"Body vazio\"}");
+  }
+}
+
+// ========== HANDLER: Status do LED (GET /led/status) ==========
+void handleStatusLED() {
+  StaticJsonDocument<200> doc;
+  doc["ativo"] = ledActive;
+  doc["placa"] = placaAtiva;
+  
+  if (ledActive) {
+    // Calcular tempo restante
+    unsigned long elapsedTime = millis() - ledStartTime;
+    unsigned long remainingTime = LED_DURATION - elapsedTime;
+    doc["tempoRestante"] = remainingTime > 0 ? remainingTime : 0;
+  } else {
+    doc["tempoRestante"] = 0;
+  }
+  
+  // Serializar JSON e enviar resposta
+  String response;
+  serializeJson(doc, response);
+  server.send(200, "application/json", response);
+}
+
+// ========== HANDLER: Página Raiz (GET /) ==========
+void handleRoot() {
+  String html = "<!DOCTYPE html><html><head><title>ESP32 LED Control</title></head><body>";
+  html += "<h1>ESP32 LED Control</h1>";
+  html += "<p>Status: " + String(ledActive ? "ATIVO" : "INATIVO") + "</p>";
+  html += "<p>Placa: " + placaAtiva + "</p>";
+  html += "<p>IP: " + WiFi.localIP().toString() + "</p>";
+  html += "</body></html>";
+  
+  server.send(200, "text/html", html);
 }
 ```
 
+**Explicação Detalhada:**
+
+1. **Bibliotecas:**
+   - `WiFi.h`: Gerencia conexão WiFi do ESP8266/ESP32
+   - `WebServer.h`: Cria servidor HTTP na porta 80
+   - `ArduinoJson.h`: Faz parsing de JSON recebido e cria JSON de resposta
+
+2. **Setup:**
+   - Configura GPIO 2 como saída para o LED
+   - Conecta ao WiFi usando SSID e senha
+   - Configura rotas HTTP (`/led/ativar`, `/led/status`, `/`)
+   - Inicia servidor HTTP na porta 80
+
+3. **Loop:**
+   - Processa requisições HTTP continuamente
+   - Controla LED piscando (500ms ON, 500ms OFF)
+   - Desativa LED automaticamente após 30 segundos
+
+4. **Handlers:**
+   - `handleAtivarLED()`: Recebe POST com JSON `{"placa": "ABC1234"}`, ativa LED
+   - `handleStatusLED()`: Retorna status atual do LED em JSON
+   - `handleRoot()`: Página HTML simples com informações do ESP8266
+
 **Características:**
-- Servidor HTTP na porta 80
-- Endpoint `POST /led/ativar` para ativar LED
-- Endpoint `GET /led/status` para verificar status
-- LED pisca por 30 segundos automaticamente
-- Desativação automática após tempo limite
+- ✅ Servidor HTTP na porta 80
+- ✅ Endpoint `POST /led/ativar` para ativar LED
+- ✅ Endpoint `GET /led/status` para verificar status
+- ✅ LED pisca por 30 segundos automaticamente (500ms ON, 500ms OFF)
+- ✅ Desativação automática após 30 segundos
+- ✅ Tratamento de erros (JSON inválido, placa vazia, etc.)
+- ✅ Logging via Serial Monitor para debug
+- ✅ Página HTML simples na raiz para verificar status
 
 ### 📡 Comunicação HTTP REST
 
