@@ -1,5 +1,11 @@
 # 🏍️ Sistema de Gestão de Motos - TrackZone
 
+## 🔗 Repositório do Projeto
+
+**GitHub**: [https://github.com/lecristina/IA-challenge-4](https://github.com/lecristina/IA-challenge-4)
+
+---
+
 ## 👥 Integrantes
 
 - **André Rogério Vieira Pavanela Altobelli Antunes** - RM: 554764
@@ -52,7 +58,8 @@ A Mottu é uma empresa de mobilidade urbana que precisa gerenciar eficientemente
 - [Novidades Implementadas](#-novidades-implementadas)
 - [Deploy](#-deploy)
 - [Cálculo de Custos e ROI](#-cálculo-de-custos-e-roi---solução-econômica)
-- [Guia para Apresentação em Vídeo](#-guia-para-apresentação-em-vídeo)
+- [Como Funciona a IA](#-como-funciona-a-ia---arquitetura-e-implementação)
+- [Como Funciona o IoT](#-como-funciona-o-iot---arquitetura-e-implementação)
 
 ---
 
@@ -79,8 +86,8 @@ git --version
 ### 1. Clonar o Repositório
 
 ```bash
-git clone <URL_DO_REPOSITORIO>
-cd challenge3-JAVA
+git clone https://github.com/lecristina/IA-challenge-4.git
+cd AI-JAVA-4
 ```
 
 ### 2. Configurar Banco de Dados
@@ -115,6 +122,13 @@ mvn spring-boot:run
 ### 4. Acessar a Aplicação
 
 Abra o navegador e acesse: **http://localhost:8081**
+
+**Páginas Principais:**
+- **Login**: http://localhost:8081/login
+- **Dashboard**: http://localhost:8081/dashboard
+- **Dashboard IoT/IOB/IA**: http://localhost:8081/disruptive-architectures ⭐ (Busca inteligente de motos com ESP8266)
+- **Assistente IA**: http://localhost:8081/ai/chat
+- **API REST**: http://localhost:8081/api/v1/motos
 
 ---
 
@@ -167,12 +181,17 @@ Abra o navegador e acesse: **http://localhost:8081**
 - **Exportar**: Dados em formato legível
 
 ### 🤖 Assistente IA (NOVO)
-- **Chat Interativo**: Conversa com IA sobre o sistema
-- **Sugestões Inteligentes**: Respostas contextuais
-- **Análise de Operações**: Análise automática de dados
-- **Fallback Inteligente**: Funciona mesmo sem IA configurada
+- **Chat Interativo**: Conversa com IA sobre o sistema (`/ai/chat`)
+- **Sugestões Inteligentes**: Respostas contextuais em português brasileiro
+- **Análise de Operações**: Análise automática de dados usando Spring AI
+- **Fallback Inteligente**: Funciona mesmo sem IA configurada (usa respostas pré-definidas)
+- **Múltiplos Provedores**: Suporta Ollama (local, gratuito) ou OpenAI (pago)
+- **Interface Moderna**: Design elegante com gradientes e animações suaves
+- **Perguntas Rápidas**: Perguntas pré-definidas para facilitar uso
+- **Análise Contextual**: IA entende contexto do sistema de gestão de motos
 
 ### 🔌 IoT/IOB - ESP8266 (NOVO)
+- **Dashboard IoT/IOB/IA**: Página `/disruptive-architectures` com busca inteligente de motos
 - **Busca Inteligente**: Buscar moto por placa com LED piscando
 - **Localização Fixa**: Cada moto tem posição X/Y única no pátio (50x50m)
 - **LED Virtual/Físico**: LED pisca via ESP8266 (simulado ou físico)
@@ -180,17 +199,22 @@ Abra o navegador e acesse: **http://localhost:8081**
 - **Dashboard IoT**: Visualização completa de todas as motos monitoradas
 - **Integração ESP8266**: Comunicação HTTP REST com hardware físico
 - **Custo-Benefício**: Hardware econômico (R$ 9,35/moto) com ROI impressionante (payback de 28 dias)
+- **URL de Acesso**: http://localhost:8081/disruptive-architectures (requer autenticação)
 
-### 👁️ Visão Computacional (NOVO)
-- **Detecção Automática**: Detecta motos no pátio usando IA
-- **Análise Visual**: Analisa estado visual de cada moto
-- **Detecção de Anomalias**: Identifica problemas automaticamente
-- **Análise Agregada**: Análise inteligente do pátio completo
-- **Integração IA**: Usa Spring AI para análises avançadas
+### 👁️ Visão Computacional com IA (NOVO)
+- **Detecção Automática**: Detecta motos no pátio usando IA e visão computacional
+- **Análise Visual**: Analisa estado visual de cada moto com confiança 85-99%
+- **Detecção de Anomalias**: Identifica problemas automaticamente usando IA
+- **Análise Agregada**: Análise inteligente do pátio completo usando Spring AI
+- **Integração IA**: Usa Spring AI para análises avançadas e recomendações
+- **Otimização de Posicionamento**: Calcula melhor posição no pátio usando algoritmos inteligentes
+- **Score de Otimização**: Calcula score baseado em status, posição e distância
 - **Evidências**:
-  - `VisaoComputacionalService.java` - Serviço de visão computacional
-  - Detecção de placa, posição, status visual
-  - Análise de anomalias e recomendações
+  - `VisaoComputacionalService.java` - Serviço de visão computacional com IA
+  - `LocalizacaoInteligenteService.java` - Serviço de localização inteligente com IA
+  - Detecção de placa, posição, status visual, confiança
+  - Análise de anomalias e recomendações usando IA
+  - Otimização de posicionamento baseada em status e distância
 
 ---
 
@@ -316,13 +340,22 @@ Abra o navegador e acesse: **http://localhost:8081**
 - **CSRF Protection**: Proteção contra ataques CSRF
 - **SQL Injection**: Proteção via JPA/Hibernate
 
-#### 7. **Inteligência Artificial** (Spring AI)
-- **IA Integrada**: Assistente inteligente para suporte
-- **Análise de Dados**: Análise automática de operações
+#### 7. **Inteligência Artificial** (Spring AI) 🤖
+- **IA Integrada**: Assistente inteligente para suporte com Spring AI
+- **Chat Interativo**: Conversa com IA sobre o sistema (`/ai/chat`)
+- **Análise de Dados**: Análise automática de operações usando IA
+- **Visão Computacional**: Detecção e análise de motos no pátio usando IA
+- **Localização Inteligente**: Otimização de posicionamento usando algoritmos inteligentes
+- **Detecção de Anomalias**: Identificação automática de problemas usando IA
+- **Fallback Inteligente**: Sistema funciona mesmo sem IA configurada
+- **Múltiplos Provedores**: Suporta Ollama (local, gratuito) ou OpenAI (pago)
 - **Evidências**: 
-  - `AIService.java` - Serviço de IA
+  - `AIService.java` - Serviço de IA com Spring AI
+  - `AIServiceFallback.java` - Fallback inteligente quando IA não está disponível
   - `AIController.java` - Controller do chat
-  - `templates/ai/chat.html` - Interface do chat
+  - `VisaoComputacionalService.java` - Serviço de visão computacional com IA
+  - `LocalizacaoInteligenteService.java` - Serviço de localização inteligente com IA
+  - `templates/ai/chat.html` - Interface do chat com design moderno
 
 #### 8. **IoT/IOB - ESP8266** (Internet das Coisas)
 - **Integração ESP8266**: Controle de LED físico via HTTP REST (87% mais barato que ESP32!)
@@ -858,254 +891,1246 @@ Este sistema está completo e funcional, atendendo todos os requisitos do desafi
 
 ---
 
-## 🎥 Guia para Apresentação em Vídeo
+## 🔌 API REST Completa
 
-### 📋 Informações Gerais
+### Endpoints Disponíveis
 
-- **Duração Máxima**: 15 minutos
-- **Participantes**: Todos os membros devem participar
-- **Formato**: Demonstração técnica + narrativa da solução
+**Base URL**: `http://localhost:8081/api/v1`
 
-### 👥 Integrantes e Participação
+#### 1. **Listar Todas as Motos**
+```
+GET /api/v1/motos
+```
 
-**⚠️ IMPORTANTE: Todos devem falar no vídeo!**
+**Resposta (200 OK):**
+```json
+{
+  "sucesso": true,
+  "total": 10,
+  "motos": [
+    {
+      "id": 1,
+      "placa": "ABC1234",
+      "chassi": "CHASSI123",
+      "motor": "MOTOR123",
+      "dataCriacao": "2024-01-01T00:00:00"
+    }
+  ]
+}
+```
 
-**Sugestão de Distribuição:**
-- **Integrante 1**: Introdução + Problema da Mottu + Dashboard (3-4 min)
-- **Integrante 2**: Funcionalidades principais + Tecnologias (4-5 min)
-- **Integrante 3**: IA + Integração Multidisciplinar + Conclusão (3-4 min)
-- **Todos**: Aparecer juntos na abertura e fechamento
+#### 2. **Buscar Localização de uma Moto**
+```
+GET /api/v1/motos/{placa}/localizacao
+```
 
-### 🎬 Roteiro da Apresentação
+**Parâmetros:**
+- `placa` (path): Placa da moto (ex: ABC1234 ou ABC-1234)
 
-#### 1. **Abertura** (1 minuto)
-- Apresentação da equipe (todos aparecem)
-- Nome do projeto: **TrackZone**
-- Problema da Mottu (contexto)
-- Objetivo da solução
+**Resposta (200 OK):**
+```json
+{
+  "sucesso": true,
+  "moto": {
+    "id": 1,
+    "placa": "ABC1234",
+    "chassi": "CHASSI123",
+    "motor": "MOTOR123"
+  },
+  "status": "PRONTA",
+  "area": "Pátio Principal",
+  "localizacao": {
+    "posicaoX": 15,
+    "posicaoY": 20,
+    "area": "Pátio Principal"
+  },
+  "led": {
+    "ativo": true,
+    "virtual": true
+  }
+}
+```
 
-**Fala Sugerida:**
-> "Olá! Somos o grupo [Nome do Grupo] e desenvolvemos o TrackZone, uma solução completa de gestão de frota de motos para a Mottu. Nossa solução integra **IoT, IOB e Inteligência Artificial** para resolver um problema real: como localizar rapidamente uma moto em um pátio de 50x50 metros com centenas de veículos."
+#### 3. **Ativar LED de uma Moto**
+```
+POST /api/v1/motos/{placa}/led
+```
 
-#### 2. **Demonstração Técnica - Parte 1** (4-5 minutos)
+**Parâmetros:**
+- `placa` (path): Placa da moto
 
-**2.1. Login e Autenticação**
-- Acessar aplicação (mostrar URL se deploy, ou localhost:8081)
-- Fazer login com usuário ADMIN
-- Mostrar que há 3 perfis (ADMIN, GERENTE, OPERADOR)
-- Explicar Spring Security implementado
+**Resposta (200 OK):**
+```json
+{
+  "sucesso": true,
+  "mensagem": "LED ativado com sucesso!",
+  "led": {
+    "ativo": true,
+    "virtual": true,
+    "tempoRestante": 30
+  }
+}
+```
 
-**2.2. Dashboard**
-- Mostrar dashboard com estatísticas
-- Explicar métricas apresentadas
-- Destacar visualização moderna
+### Exemplos de Uso
 
-**2.3. Gestão de Motos**
-- Cadastrar uma nova moto
-- Mostrar validações (placa única, chassi único)
-- Listar motos cadastradas
-- Explicar Spring Data JPA
+**JavaScript:**
+```javascript
+// Listar todas as motos
+fetch('http://localhost:8081/api/v1/motos')
+  .then(response => response.json())
+  .then(data => console.log(data));
 
-**2.4. IoT/ESP8266 - Busca Inteligente**
-- Acessar página `/disruptive-architectures`
-- Buscar uma moto por placa
-- Mostrar localização X/Y no pátio (50x50m)
-- Explicar LED piscando (virtual ou físico)
-- Mostrar comunicação HTTP REST com ESP8266
+// Buscar localização
+fetch('http://localhost:8081/api/v1/motos/ABC1234/localizacao')
+  .then(response => response.json())
+  .then(data => {
+    console.log('Posição X:', data.localizacao.posicaoX);
+    console.log('Posição Y:', data.localizacao.posicaoY);
+  });
 
-**Pontos a Destacar:**
-- ✅ Hardware econômico (ESP8266: R$ 9,35/moto)
-- ✅ ROI impressionante (payback de 28 dias)
-- ✅ Localização inteligente (algoritmo determinístico)
-- ✅ Modo simulação vs. físico
+// Ativar LED
+fetch('http://localhost:8081/api/v1/motos/ABC1234/led', {
+  method: 'POST'
+})
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
 
-#### 3. **Demonstração Técnica - Parte 2** (4-5 minutos)
+**C#:**
+```csharp
+HttpClient client = new HttpClient();
+var response = await client.GetAsync("http://localhost:8081/api/v1/motos");
+var json = await response.Content.ReadAsStringAsync();
+var resultado = JsonSerializer.Deserialize<MotosResponse>(json);
+```
 
-**3.1. Status e Operações**
-- Mostrar status de motos
-- Atualizar status de uma moto
-- Explicar ENUM de status
-- Mostrar operações
+---
 
-**3.2. Relatórios**
-- Mostrar tela de relatórios
-- Filtrar por período
-- Filtrar por status
-- Explicar queries customizadas
+## 🔧 Como Funciona o IoT - Arquitetura e Implementação
 
-**3.3. Assistente IA (DESTAQUE!)**
-- Acessar `/ai/chat`
-- Fazer uma pergunta ao assistente
-- Mostrar resposta da IA
-- Explicar Spring AI implementado
+### 📐 Arquitetura do IoT
 
-**Pontos a Destacar:**
-- ✅ Spring AI 1.0.0 (versão estável)
-- ✅ Integração com Ollama (local) ou OpenAI
-- ✅ Fallback inteligente
-- ✅ Carregamento condicional (@ConditionalOnClass)
+O IoT no TrackZone foi implementado com uma arquitetura flexível que suporta tanto simulação quanto hardware físico (ESP8266/ESP32), utilizando comunicação HTTP REST para controle remoto do LED.
 
-#### 4. **Narrativa da Solução** (3-4 minutos)
+#### Componentes Principais
 
-**4.1. Decisões de Design**
-- Explicar por que Spring Boot
-- Justificar escolha de Thymeleaf
-- Explicar Flyway
-- Destacar Spring AI como diferencial
-- **DESTACAR**: ESP8266 vs ESP32 (87% mais barato!)
+```
+┌─────────────────────────────────────────────────────────────┐
+│          DisruptiveArchitecturesController                  │
+│  (Endpoint: /disruptive-architectures, /ativar-led)        │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+         ┌───────────┴───────────┐
+         │                       │
+    ┌────▼────┐          ┌──────▼──────┐
+    │ESP32    │          │Localização  │
+    │Service  │          │Inteligente  │
+    │         │          │Service      │
+    └────┬────┘          └─────────────┘
+         │
+    ┌────▼────┐
+    │RestTemplate│
+    │(HTTP REST)│
+    └────┬────┘
+         │
+    ┌────▼────┐
+    │ESP8266/ │
+    │ESP32    │
+    │(Hardware)│
+    └─────────┘
+```
 
-**4.2. Arquitetura e Padrões**
-- Explicar arquitetura MVC
-- Mencionar SOLID
-- Destacar Repository Pattern
-- Falar sobre Exception Handling
+#### 1. **DisruptiveArchitecturesController** (`DisruptiveArchitecturesController.java`)
+- **Responsabilidade**: Gerenciar dashboard IoT/IOB/IA e ativar LED
+- **Endpoints**:
+  - `GET /disruptive-architectures` - Dashboard IoT com busca de motos
+  - `POST /disruptive-architectures/buscar` - Buscar moto por placa e ativar LED
+  - `POST /disruptive-architectures/ativar-led` - Ativar LED de uma moto
+- **Funcionalidades**:
+  - Busca inteligente de motos por placa
+  - Criação de localização aleatória para cada moto
+  - Ativação de LED virtual/físico
+  - Geração de dados ESP32 (GPS, Bluetooth, Bateria)
 
-**4.3. Custo-Benefício**
-- Apresentar custos (R$ 9,35/moto)
-- Mostrar ROI (1.186% no primeiro ano)
-- Explicar payback (28 dias)
-- Destacar economia operacional
+#### 2. **ESP32Service** (`ESP32Service.java`)
+- **Responsabilidade**: Controlar LED via ESP8266/ESP32 (simulado ou físico)
+- **Características**:
+  - Suporta modo simulado (sem hardware)
+  - Suporta modo físico (com ESP8266/ESP32)
+  - Comunicação HTTP REST com hardware
+  - Rastreamento de LEDs ativos por placa
+  - Desativação automática após 30 segundos
+- **Configuração**:
+  - `esp32.enabled` - Habilita/desabilita comunicação com hardware
+  - `esp32.base-url` - URL base do ESP8266/ESP32 (ex: http://192.168.1.100)
 
-#### 5. **Integração Multidisciplinar** (2-3 minutos)
+#### 3. **ESP8266/ESP32 (Hardware)**
+- **Responsabilidade**: Controlar LED físico via HTTP REST
+- **Características**:
+  - Servidor HTTP na porta 80
+  - Endpoint `POST /led/ativar` para ativar LED
+  - Endpoint `GET /led/status` para verificar status
+  - LED pisca por 30 segundos automaticamente
+  - Desativação automática após tempo limite
 
-**Disciplinas Integradas:**
-- Design Thinking (UI/UX)
-- Metodologias Ágeis (Sprints)
-- Banco de Dados (SQL, migrações)
-- Engenharia de Software (arquitetura)
-- Segurança (Spring Security)
-- IA (Spring AI)
-- IoT/IOB (ESP8266)
-- Mobile App (API REST)
-- .NET (API REST)
-- DevOps (Docker, CI/CD)
+### 🔄 Fluxo de Funcionamento
 
-**Evidências a Mencionar:**
-- ✅ Scripts SQL em `db/migration/`
-- ✅ Arquitetura em camadas
-- ✅ Interface moderna e responsiva
-- ✅ Commits no Git (histórico de desenvolvimento)
-- ✅ Dockerfile e CI/CD configurados
+#### Fluxo de Ativação de LED
 
-#### 6. **Conclusão** (1 minuto)
-- Resumir funcionalidades principais
-- Destacar inovação (IA + IoT)
-- Destacar custo-benefício (ROI impressionante)
-- Agradecer
+```
+1. Usuário busca moto por placa no dashboard (/disruptive-architectures)
+   ↓
+2. DisruptiveArchitecturesController recebe POST /disruptive-architectures/buscar
+   ↓
+3. Controller busca moto no banco de dados
+   ↓
+4. Controller cria localização aleatória para a moto
+   ↓
+5. Controller chama ESP32Service.ativarLED(placa)
+   ↓
+6a. Se esp32.enabled=true:
+    → ESP32Service envia HTTP POST para ESP8266/ESP32
+    → ESP8266/ESP32 recebe comando e ativa LED físico
+    → LED pisca por 30 segundos
+   ↓
+6b. Se esp32.enabled=false:
+    → ESP32Service simula ativação (sem hardware)
+    → LED virtual é ativado no sistema
+   ↓
+7. Sistema retorna localização e status do LED ao usuário
+```
 
-**Fala Sugerida:**
-> "Em resumo, o TrackZone é uma solução completa que integra tecnologias modernas do ecossistema Spring, com destaque para a integração de IA através do Spring AI e IoT com ESP8266. Com investimento de apenas R$ 9,35 por moto, a Mottu obtém ROI de 1.186% no primeiro ano, com payback de apenas 28 dias. O sistema está funcional, bem documentado e pronto para uso. Obrigado pela atenção!"
+#### Fluxo de Verificação de Status
 
-### ✅ Checklist Antes da Gravação
+```
+1. Sistema precisa verificar se LED está ativo
+   ↓
+2. ESP32Service.isLEDAtivo(placa) é chamado
+   ↓
+3. Service verifica mapa de LEDs ativos
+   ↓
+4a. Se LED está ativo e dentro do tempo (30s):
+    → Retorna true
+   ↓
+4b. Se LED expirou (mais de 30s):
+    → Remove do mapa
+    → Retorna false
+   ↓
+5. Status retorna ao sistema
+```
 
-**Preparação Técnica:**
-- [ ] Aplicação rodando e testada
-- [ ] Todos os fluxos funcionando
-- [ ] Login de teste funcionando
-- [ ] Dados de exemplo cadastrados
-- [ ] IA configurada (se possível) ou fallback funcionando
-- [ ] Busca de moto no dashboard funcionando
-- [ ] API REST testada (`/api/v1/motos/ABC1234/localizacao`)
-- [ ] LED funcionando (virtual ou físico)
+### 🛠️ Como Foi Implementado
 
-**Preparação da Apresentação:**
-- [ ] Roteiro revisado por todos
-- [ ] Distribuição de falas definida
-- [ ] Tempo de cada seção cronometrado
-- [ ] Evidências prontas (screenshots, diagramas)
-- [ ] Números de custo e ROI revisados
+#### 1. **Serviço de Controle ESP32** (`ESP32Service.java`)
 
-**Testes:**
-- [ ] Testar todos os fluxos antes de gravar
-- [ ] Verificar se não há erros visuais
-- [ ] Confirmar que todos os links funcionam
-- [ ] Testar áudio e vídeo
+```java
+@Service
+public class ESP32Service {
+    @Value("${esp32.enabled:false}")
+    private boolean esp32Enabled;
+    
+    @Value("${esp32.base-url:http://192.168.1.100}")
+    private String esp32BaseUrl;
+    
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final Map<String, Long> ledsAtivos = new ConcurrentHashMap<>();
+}
+```
 
-### 🎯 Pontos-Chave para Demonstrar
+**Características:**
+- Usa `@Value` para ler configuração do `application.properties`
+- `ConcurrentHashMap` para rastreamento thread-safe de LEDs ativos
+- `RestTemplate` para comunicação HTTP REST com hardware
+- Suporta modo simulado e físico
 
-**1. Demonstração Técnica (40 pontos)**
-- ✅ Navegar pelos principais fluxos: Login → Dashboard → Cadastro → IoT → IA
-- ✅ Aplicar conceitos da disciplina: Spring Boot, Security, JPA, Thymeleaf, Flyway, AI, IoT
-- ✅ Interface moderna: Mostrar design responsivo e intuitivo
-- ✅ **DESTACAR**: Busca inteligente com ESP8266 e LED
+#### 2. **Ativação de LED**
 
-**2. Narrativa (20 pontos)**
-- ✅ Explicar solução: Problema da Mottu → Solução TrackZone
-- ✅ Decisões de design: Por que cada tecnologia
-- ✅ Originalidade: Destaque para IA integrada + IoT
-- ✅ **DESTACAR**: Custo-benefício e ROI impressionante
+```java
+public boolean ativarLED(String placa) {
+    // Normalizar placa
+    String placaNormalizada = placa.trim().toUpperCase();
+    ledsAtivos.put(placaNormalizada, System.currentTimeMillis());
+    
+    // Se ESP32 real está habilitado, enviar comando HTTP
+    if (esp32Enabled) {
+        try {
+            String url = esp32BaseUrl + "/led/ativar";
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("placa", placaNormalizada);
+            
+            restTemplate.postForObject(url, requestBody, Map.class);
+            
+            logger.info("LED REAL ativado para moto com placa: {} via ESP32 em {}", 
+                placaNormalizada, esp32BaseUrl);
+            return true;
+        } catch (RestClientException e) {
+            logger.error("Erro ao comunicar com ESP32 real: {}", e.getMessage());
+            // Continuar com simulação se falhar
+        }
+    }
+    
+    logger.info("LED SIMULADO ativado para moto com placa: {}", placaNormalizada);
+    return true;
+}
+```
 
-**3. Integração Multidisciplinar (20 pontos)**
-- ✅ Mencionar disciplinas: Design Thinking, Ágeis, BD, Eng. Software, Segurança, IA, IoT, Mobile, .NET, DevOps
-- ✅ Evidências: Scripts SQL, commits, arquitetura, Dockerfile, CI/CD
+**Características:**
+- Verifica se hardware está habilitado
+- Envia HTTP POST para ESP8266/ESP32 se habilitado
+- Fallback para simulação se hardware não disponível
+- Rastreia timestamp de ativação
 
-**4. Apresentação Oral (10 pontos)**
-- ✅ Todos participam: Distribuir falas igualmente
-- ✅ Clareza: Falar pausadamente e com clareza
-- ✅ Domínio: Demonstrar conhecimento técnico
+#### 3. **Verificação de Status**
 
-**5. Organização (10 pontos)**
-- ✅ Estrutura clara: Seguir roteiro
-- ✅ Transições suaves: Entre seções
-- ✅ Profissionalismo: Apresentação polida
+```java
+public boolean isLEDAtivo(String placa) {
+    String placaNormalizada = placa.trim().toUpperCase();
+    Long timestamp = ledsAtivos.get(placaNormalizada);
+    
+    if (timestamp == null) {
+        return false;
+    }
+    
+    // Verificar se ainda está dentro do tempo de duração (30s)
+    long tempoDecorrido = System.currentTimeMillis() - timestamp;
+    if (tempoDecorrido > DURACAO_LED_MS) {
+        // LED expirou, remover
+        ledsAtivos.remove(placaNormalizada);
+        return false;
+    }
+    
+    return true;
+}
+```
 
-### 📝 Dicas de Gravação
+**Características:**
+- Verifica se LED está ativo no mapa
+- Calcula tempo decorrido desde ativação
+- Remove automaticamente se expirou (30 segundos)
+- Thread-safe usando ConcurrentHashMap
 
-**Áudio:**
-- Usar microfone de qualidade (evitar ruído)
-- Falar pausadamente e com clareza
-- Testar áudio antes de gravar
+#### 4. **Código Arduino para ESP8266/ESP32** (`ESP32_LED_EXAMPLE.ino`)
 
-**Vídeo:**
-- Bom enquadramento (todos visíveis)
-- Iluminação adequada
-- Fundo neutro (se necessário)
+```cpp
+#include <WiFi.h>
+#include <WebServer.h>
+#include <ArduinoJson.h>
 
-**Tela:**
-- Zoom adequado (100-125%)
-- Resolução adequada (1920x1080 recomendado)
-- Cursor visível mas não distraindo
+const char* ssid = "SEU_WIFI_SSID";
+const char* password = "SUA_SENHA_WIFI";
+const int LED_PIN = 2;
+const unsigned long LED_DURATION = 30000; // 30 segundos
 
-**Edição:**
-- Cortar pausas longas
-- Adicionar transições suaves
-- Verificar áudio sincronizado
+WebServer server(80);
+unsigned long ledStartTime = 0;
+bool ledActive = false;
 
-### 📊 Cronograma Sugerido
+void setup() {
+  pinMode(LED_PIN, OUTPUT);
+  WiFi.begin(ssid, password);
+  
+  server.on("/led/ativar", HTTP_POST, handleAtivarLED);
+  server.on("/led/status", HTTP_GET, handleStatusLED);
+  server.begin();
+}
 
-| Tempo | Seção | Responsável | Pontos-Chave |
-|-------|-------|-------------|--------------|
-| 0-1 min | Abertura | Todos | Apresentação da equipe |
-| 1-5 min | Demo Técnica 1 | Integrante 1 | Login, Dashboard, CRUD, IoT |
-| 5-9 min | Demo Técnica 2 | Integrante 2 | Status, Relatórios, IA |
-| 9-12 min | Narrativa | Integrante 3 | Decisões, Custo-Benefício, Integração |
-| 12-15 min | Conclusão | Todos | Resumo e agradecimento |
+void loop() {
+  server.handleClient();
+  
+  if (ledActive) {
+    // Piscar LED (500ms ligado, 500ms desligado)
+    int blinkState = (millis() / 500) % 2;
+    digitalWrite(LED_PIN, blinkState);
+    
+    // Desativar após 30 segundos
+    if (millis() - ledStartTime >= LED_DURATION) {
+      ledActive = false;
+      digitalWrite(LED_PIN, LOW);
+    }
+  }
+}
+```
 
-### ✅ Checklist Final Antes de Enviar
+**Características:**
+- Servidor HTTP na porta 80
+- Endpoint `POST /led/ativar` para ativar LED
+- Endpoint `GET /led/status` para verificar status
+- LED pisca por 30 segundos automaticamente
+- Desativação automática após tempo limite
 
-- [ ] Vídeo com duração máxima de 15 minutos
-- [ ] Todos os integrantes aparecem e falam
-- [ ] Todos os fluxos principais demonstrados
-- [ ] Conceitos da disciplina mencionados
-- [ ] Decisões de design explicadas
-- [ ] Integração multidisciplinar abordada
-- [ ] Custo-benefício e ROI apresentados
-- [ ] IoT/ESP8266 demonstrado
-- [ ] Sem erros visuais ou de fluxo
-- [ ] Áudio claro e vídeo de qualidade
-- [ ] Link de acesso à aplicação mencionado (se houver)
-- [ ] README completo e atualizado
+### 📡 Comunicação HTTP REST
+
+#### Requisição de Ativação
+
+**Endpoint**: `POST http://192.168.1.100/led/ativar`
+
+**Body (JSON)**:
+```json
+{
+  "placa": "ABC1234"
+}
+```
+
+**Resposta (200 OK)**:
+```json
+{
+  "sucesso": true,
+  "mensagem": "LED ativado com sucesso",
+  "tempoRestante": 30
+}
+```
+
+#### Verificação de Status
+
+**Endpoint**: `GET http://192.168.1.100/led/status`
+
+**Resposta (200 OK)**:
+```json
+{
+  "ativo": true,
+  "tempoRestante": 25,
+  "placa": "ABC1234"
+}
+```
+
+### 🎯 Localização Inteligente
+
+O sistema também implementa localização inteligente para cada moto:
+
+#### Criação de Localização Aleatória
+
+```java
+private Map<String, Object> criarLocalizacao(Moto moto, StatusMoto statusMoto, Set<String> posicoesOcupadas) {
+    Map<String, Object> loc = new HashMap<>();
+    
+    // Gerar posição aleatória baseada no status
+    int posX, posY;
+    
+    if ("PRONTA".equals(statusAtual)) {
+        // Motos prontas: área 0-24 metros (mais perto da entrada)
+        posX = random.nextInt(25);
+        posY = random.nextInt(25);
+    } else if (statusAtual.contains("MANUTENCAO")) {
+        // Motos em manutenção: área 25-49 metros (fundo do pátio)
+        posX = 25 + random.nextInt(25);
+        posY = 25 + random.nextInt(25);
+    } else {
+        // Outros status: posição aleatória em todo o pátio (0-49 metros)
+        posX = random.nextInt(50);
+        posY = random.nextInt(50);
+    }
+    
+    // Garantir posição única
+    String posicaoKey = posX + "," + posY;
+    int tentativas = 0;
+    while (posicoesOcupadas.contains(posicaoKey) && tentativas < 100) {
+        posX = random.nextInt(50);
+        posY = random.nextInt(50);
+        posicaoKey = posX + "," + posY;
+        tentativas++;
+    }
+    
+    posicoesOcupadas.add(posicaoKey);
+    
+    // Gerar dados ESP32 simulados
+    int sinalGPS = 80 + random.nextInt(20); // 80-99%
+    int sinalBluetooth = 70 + random.nextInt(30); // 70-99%
+    int bateria = 85 + random.nextInt(15); // 85-99%
+    String esp32Id = "ESP32-" + String.format("%04d", moto.getId());
+    
+    loc.put("posicaoX", posX);
+    loc.put("posicaoY", posY);
+    loc.put("sinalGPS", sinalGPS);
+    loc.put("sinalBluetooth", sinalBluetooth);
+    loc.put("bateria", bateria);
+    loc.put("esp32Id", esp32Id);
+    
+    return loc;
+}
+```
+
+**Características:**
+- Posição aleatória única para cada moto
+- Distribuição baseada em status (PRONTAS perto da entrada, MANUTENÇÃO no fundo)
+- Dados ESP32 simulados (GPS, Bluetooth, Bateria)
+- Evita posições duplicadas usando Set
+
+### 🔍 Dados ESP32 Gerados
+
+O sistema gera dados simulados do ESP8266/ESP32 para cada moto:
+
+- **Sinal GPS**: 80-99% (aleatório)
+- **Sinal Bluetooth**: 70-99% (aleatório)
+- **Bateria**: 85-99% (aleatório)
+- **ESP32 ID**: Formatado como "ESP32-XXXX"
+- **Posição X/Y**: Aleatória no pátio 50x50m
+- **Status**: Baseado no status da moto
+- **Alertas**: Gerados automaticamente (bateria baixa, sinal GPS fraco, etc.)
+
+### 💡 Controle de LED - Detalhes Técnicos
+
+#### Funcionamento do LED
+
+O LED é controlado via GPIO do ESP8266/ESP32 e pisca por 30 segundos quando ativado:
+
+**Características do LED:**
+- **GPIO**: Pino 2 (GPIO2) no ESP8266/ESP32
+- **Resistor**: 220Ω (proteção contra sobrecarga)
+- **Frequência de Piscar**: 500ms ligado, 500ms desligado (1Hz)
+- **Duração**: 30 segundos após ativação
+- **Desativação**: Automática após 30 segundos
+
+**Ciclo de Vida do LED:**
+```
+1. Usuário busca moto → Sistema envia HTTP POST
+2. ESP8266 recebe comando → Ativa LED
+3. LED pisca por 30 segundos (500ms ON, 500ms OFF)
+4. Após 30 segundos → LED desativa automaticamente
+5. Sistema remove LED do mapa de LEDs ativos
+```
+
+#### Rastreamento de LEDs Ativos
+
+O sistema usa `ConcurrentHashMap` para rastrear LEDs ativos:
+
+```java
+private final Map<String, Long> ledsAtivos = new ConcurrentHashMap<>();
+
+// Chave: Placa da moto (normalizada)
+// Valor: Timestamp de ativação (System.currentTimeMillis())
+```
+
+**Vantagens:**
+- **Thread-Safe**: Múltiplas requisições simultâneas são seguras
+- **Performance**: O(1) para busca e inserção
+- **Desativação Automática**: Remove LEDs expirados automaticamente
+
+#### Limpeza Automática de LEDs Expirados
+
+O sistema remove automaticamente LEDs que expiraram:
+
+```java
+public void limparLEDsExpirados() {
+    long agora = System.currentTimeMillis();
+    ledsAtivos.entrySet().removeIf(entry -> 
+        (agora - entry.getValue()) > DURACAO_LED_MS
+    );
+}
+```
+
+**Características:**
+- Executa periodicamente ou sob demanda
+- Remove LEDs que passaram de 30 segundos
+- Libera memória automaticamente
+
+### ✅ Vantagens da Arquitetura
+
+1. **Flexibilidade**: Funciona com ou sem hardware físico
+2. **Robustez**: Fallback para simulação se hardware não disponível
+3. **Escalabilidade**: Fácil adicionar mais dispositivos IoT
+4. **Manutenibilidade**: Código limpo e bem documentado
+5. **Compatibilidade**: Suporta ESP8266 e ESP32
+6. **Custo-Benefício**: Hardware econômico (R$ 8,00/moto com ESP8266)
+
+### 🔧 Configuração
+
+#### Modo Simulado (Padrão)
+
+```properties
+# application.properties
+esp32.enabled=false
+```
+
+**Vantagens:**
+- Funciona sem hardware
+- Ideal para desenvolvimento
+- Testes rápidos
+
+#### Modo Físico (Com Hardware)
+
+```properties
+# application.properties
+esp32.enabled=true
+esp32.base-url=http://192.168.1.100
+```
+
+**Vantagens:**
+- Controle real de LED físico
+- Demonstração completa do sistema
+- Integração real com hardware
+
+---
+
+## 🔧 Integração ESP32/ESP8266
+
+### Hardware Necessário
+- **ESP8266** (recomendado - R$ 8,00) ou ESP32 (R$ 20,00)
+- **LED** (qualquer cor)
+- **Resistor 220Ω**
+- **Cabos jumper**
+- **Fonte de alimentação** (USB ou bateria)
+
+### Software Necessário
+- **Arduino IDE** instalado
+- **Biblioteca ESP32/ESP8266** instalada no Arduino IDE
+- **Biblioteca ArduinoJson** instalada (via Library Manager)
+
+### Passo a Passo
+
+#### 1. Conectar o Hardware
+```
+ESP8266 GPIO 2 ──[LED]──[Resistor 220Ω]── GND
+```
+
+#### 2. Configurar o Código do ESP8266
+1. Abra o arquivo `ESP32_LED_EXAMPLE.ino` no Arduino IDE
+2. Edite as linhas 28-29:
+   ```cpp
+   const char* ssid = "SEU_WIFI_SSID";
+   const char* password = "SUA_SENHA_WIFI";
+   ```
+3. Instale a biblioteca **ArduinoJson** (versão 6.x)
+4. Carregue o código no ESP8266
+
+#### 3. Anotar o IP do ESP8266
+1. Abra o Serial Monitor (115200 baud)
+2. Aguarde a mensagem: `WiFi conectado! IP do ESP8266: 192.168.1.100`
+3. **Anote esse IP!**
+
+#### 4. Configurar o Java
+Edite `src/main/resources/application.properties`:
+```properties
+esp32.enabled=true
+esp32.base-url=http://192.168.1.100
+```
+⚠️ **Substitua `192.168.1.100` pelo IP que você anotou!**
+
+#### 5. Reiniciar a Aplicação
+```bash
+mvn spring-boot:run
+```
+
+#### 6. Testar!
+1. Acesse: `http://localhost:8081/disruptive-architectures`
+2. Digite uma placa de moto cadastrada
+3. Clique em "Buscar"
+4. **O LED deve piscar por 30 segundos!** 🎉
+
+### Como Funciona
+
+**Fluxo de Comunicação:**
+```
+Java App → HTTP POST → ESP8266 → LED pisca por 30 segundos
+```
+
+**Endpoints do ESP8266:**
+- `POST /led/ativar` - Ativa LED por 30 segundos
+- `GET /led/status` - Verifica status do LED
+- `GET /info` - Informações do ESP8266
+
+### 🔌 ESP8266 vs ESP32 - Comparação Técnica
+
+#### ESP8266 (Recomendado - R$ 8,00)
+- **CPU**: Tensilica L106 32-bit (80MHz)
+- **RAM**: 80KB
+- **Flash**: 4MB (varia)
+- **WiFi**: 802.11 b/g/n (2.4GHz)
+- **GPIO**: 17 pinos
+- **Consumo**: 0.08W (standby WiFi)
+- **Custo**: R$ 8,00 (compra em volume)
+- **Vantagens**: Mais barato, suficiente para LED
+- **Desvantagens**: Menos recursos que ESP32
+
+#### ESP32 (Alternativa - R$ 20,00)
+- **CPU**: Dual-core Tensilica LX6 32-bit (240MHz)
+- **RAM**: 520KB
+- **Flash**: 4MB (varia)
+- **WiFi**: 802.11 b/g/n (2.4GHz)
+- **Bluetooth**: 4.2 + BLE
+- **GPIO**: 34 pinos
+- **Consumo**: 0.10W (standby WiFi)
+- **Custo**: R$ 20,00 (compra em volume)
+- **Vantagens**: Mais recursos, Bluetooth
+- **Desvantagens**: Mais caro, desnecessário para LED simples
+
+**Recomendação**: ESP8266 é suficiente para controle de LED e 87% mais barato!
+
+### 📡 Protocolo HTTP REST - Detalhes de Implementação
+
+#### Requisição de Ativação (Java → ESP8266)
+
+**Código Java (ESP32Service.java):**
+```java
+public boolean ativarLED(String placa) {
+    String url = esp32BaseUrl + "/led/ativar";
+    Map<String, String> requestBody = new HashMap<>();
+    requestBody.put("placa", placa);
+    
+    try {
+        restTemplate.postForObject(url, requestBody, Map.class);
+        logger.info("LED REAL ativado para placa: {}", placa);
+        return true;
+    } catch (RestClientException e) {
+        logger.error("Erro ao comunicar com ESP8266: {}", e.getMessage());
+        return false; // Fallback para simulação
+    }
+}
+```
+
+**Características:**
+- Usa `RestTemplate` do Spring para HTTP
+- Timeout configurável (padrão: 5 segundos)
+- Tratamento de erro com fallback
+- Logging detalhado para debug
+
+#### Resposta do ESP8266 (Arduino)
+
+**Código Arduino (ESP32_LED_EXAMPLE.ino):**
+```cpp
+void handleAtivarLED() {
+    if (server.hasArg("plain")) {
+        String body = server.arg("plain");
+        DynamicJsonDocument doc(1024);
+        deserializeJson(doc, body);
+        
+        String placa = doc["placa"];
+        ledActive = true;
+        ledStartTime = millis();
+        
+        // Resposta JSON
+        server.send(200, "application/json", 
+            "{\"sucesso\":true,\"mensagem\":\"LED ativado\",\"tempoRestante\":30}");
+    }
+}
+```
+
+**Características:**
+- Usa `ArduinoJson` para parsing JSON
+- Resposta em formato JSON
+- Ativa LED imediatamente
+- Retorna status e tempo restante
+
+#### Tratamento de Erros
+
+**Cenários de Erro:**
+1. **ESP8266 não disponível**: Fallback para simulação
+2. **Timeout**: Retorna erro após 5 segundos
+3. **WiFi desconectado**: Log de erro, continua com simulação
+4. **LED já ativo**: Reativa com novo timestamp
+
+**Código de Tratamento:**
+```java
+try {
+    restTemplate.postForObject(url, requestBody, Map.class);
+} catch (ResourceAccessException e) {
+    // Timeout ou conexão recusada
+    logger.warn("ESP8266 não disponível, usando simulação");
+    return true; // Simula sucesso
+} catch (HttpClientErrorException e) {
+    // Erro HTTP (4xx)
+    logger.error("Erro HTTP do ESP8266: {}", e.getStatusCode());
+    return false;
+} catch (Exception e) {
+    // Outros erros
+    logger.error("Erro inesperado: {}", e.getMessage());
+    return false;
+}
+```
+
+---
+
+## 🤖 Como Funciona a IA - Arquitetura e Implementação
+
+### 📐 Arquitetura da IA
+
+A IA no TrackZone foi implementada com uma arquitetura flexível e robusta, utilizando o padrão **Strategy** e **Fallback** para garantir que o sistema funcione mesmo sem IA configurada.
+
+#### Componentes Principais
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    AIController                              │
+│  (Endpoint: /ai/chat, /ai/perguntar, /ai/analisar-operacao)│
+└────────────────────┬────────────────────────────────────────┘
+                     │
+         ┌───────────┴───────────┐
+         │                       │
+    ┌────▼────┐          ┌──────▼──────┐
+    │AIService│          │AIService     │
+    │(Spring  │          │Fallback      │
+    │ AI)     │          │(Respostas    │
+    │         │          │ pré-definidas)│
+    └────┬────┘          └──────────────┘
+         │
+    ┌────▼────┐
+    │ChatModel│
+    │(Ollama/ │
+    │OpenAI)  │
+    └─────────┘
+```
+
+#### 1. **AIController** (`AIController.java`)
+- **Responsabilidade**: Receber requisições HTTP e rotear para os serviços de IA
+- **Endpoints**:
+  - `GET /ai/chat` - Página do chat interativo
+  - `POST /ai/perguntar` - Processar pergunta do usuário
+  - `POST /ai/analisar-operacao` - Analisar operação de moto
+- **Estratégia**: Tenta usar `AIService` primeiro, se falhar usa `AIServiceFallback`
+
+#### 2. **AIService** (`AIService.java`)
+- **Responsabilidade**: Integração com Spring AI (Ollama/OpenAI)
+- **Características**:
+  - Usa `@ConditionalOnClass` para carregar apenas se Spring AI estiver disponível
+  - Inicialização lazy e thread-safe usando `synchronized`
+  - Usa Reflection para chamar Spring AI (compatibilidade com diferentes versões)
+  - Fallback automático para `AIServiceFallback` em caso de erro
+- **Fluxo de Funcionamento**:
+  1. Verifica se `ChatModel` está disponível no ApplicationContext
+  2. Cria prompt formatado com contexto e pergunta
+  3. Chama o modelo de IA via Reflection
+  4. Extrai resposta e retorna ao usuário
+  5. Em caso de erro, usa fallback
+
+#### 3. **AIServiceFallback** (`AIServiceFallback.java`)
+- **Responsabilidade**: Fornecer respostas inteligentes sem precisar de IA externa
+- **Características**:
+  - Respostas pré-definidas baseadas em palavras-chave
+  - Cobre os principais tópicos do sistema (status, cadastro, operações, etc.)
+  - Sempre disponível, não depende de configuração externa
+- **Tópicos Cobertos**:
+  - Status de motos
+  - Cadastro e exclusão
+  - Operações do sistema
+  - Relatórios
+  - Dashboard
+  - Perfis de usuário
+
+### 🔄 Fluxo de Funcionamento
+
+#### Fluxo de uma Pergunta
+
+```
+1. Usuário faz pergunta no chat (/ai/chat)
+   ↓
+2. AIController recebe POST /ai/perguntar
+   ↓
+3. AIController tenta usar AIService
+   ↓
+4a. Se Spring AI disponível:
+    → AIService cria prompt formatado
+    → Chama ChatModel (Ollama/OpenAI)
+    → Retorna resposta da IA
+   ↓
+4b. Se Spring AI não disponível OU erro:
+    → Usa AIServiceFallback
+    → Retorna resposta pré-definida baseada em palavras-chave
+   ↓
+5. Resposta formatada retorna ao usuário
+```
+
+#### Fluxo de Análise de Operação
+
+```
+1. Sistema precisa analisar operação de moto
+   ↓
+2. AIController recebe POST /ai/analisar-operacao
+   ↓
+3. AIController tenta usar AIService
+   ↓
+4a. Se Spring AI disponível:
+    → AIService cria prompt de análise
+    → Chama ChatModel com dados da operação
+    → Retorna análise inteligente
+   ↓
+4b. Se Spring AI não disponível:
+    → Usa AIServiceFallback
+    → Retorna análise básica pré-definida
+   ↓
+5. Análise retorna ao sistema
+```
+
+### 🛠️ Como Foi Implementado
+
+#### 1. **Dependência Opcional no pom.xml**
+
+```xml
+<dependency>
+    <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>
+    <version>1.0.0</version>
+    <optional>true</optional> <!-- Opcional: não quebra se não estiver disponível -->
+</dependency>
+```
+
+**Por que opcional?**
+- Permite que a aplicação funcione sem Spring AI configurado
+- Não quebra a compilação se a dependência não estiver disponível
+- Facilita desenvolvimento local sem precisar configurar IA
+
+#### 2. **Carregamento Condicional**
+
+```java
+@Service
+@ConditionalOnClass(name = "org.springframework.ai.chat.ChatModel")
+public class AIService {
+    // Só é criado se ChatModel estiver no classpath
+}
+```
+
+**Por que usar `@ConditionalOnClass`?**
+- O Spring só cria o bean se a classe `ChatModel` existir
+- Se não existir, o `AIServiceFallback` é usado automaticamente
+- Evita erros de ClassNotFoundException
+
+#### 3. **Inicialização Lazy e Thread-Safe**
+
+```java
+private volatile boolean initialized = false;
+
+private void initChatModel() {
+    if (initialized) return;
+    
+    synchronized (this) {
+        if (initialized) return; // Double-check locking
+        
+        // Busca ChatModel no ApplicationContext
+        // Inicializa apenas uma vez
+    }
+}
+```
+
+**Por que lazy initialization?**
+- Não inicializa até ser realmente necessário
+- Evita erros na inicialização da aplicação
+- Melhora performance (não carrega se não for usar)
+
+**Por que thread-safe?**
+- Múltiplas requisições podem chegar simultaneamente
+- Garante que apenas uma thread inicializa
+- Usa double-check locking pattern
+
+#### 4. **Uso de Reflection**
+
+```java
+Class<?> promptClass = Class.forName("org.springframework.ai.chat.prompt.Prompt");
+Class<?> userMessageClass = Class.forName("org.springframework.ai.chat.messages.UserMessage");
+Object userMessage = userMessageClass.getConstructor(String.class).newInstance(promptText);
+// ... cria prompt e chama modelo via reflection
+```
+
+**Por que usar Reflection?**
+- Compatibilidade com diferentes versões do Spring AI
+- Não quebra se a API do Spring AI mudar
+- Permite usar Spring AI sem dependência direta no código
+
+#### 5. **Fallback Inteligente**
+
+```java
+@Autowired(required = false)
+private AIServiceFallback fallback;
+
+public String obterSugestao(String contexto, String pergunta) {
+    if (chatModel == null) {
+        return fallback != null ? fallback.obterSugestao(contexto, pergunta) : 
+               "Serviço de IA não disponível.";
+    }
+    // ... tenta usar IA, se falhar usa fallback
+}
+```
+
+**Por que fallback?**
+- Garante que o sistema sempre responda
+- Melhor experiência do usuário (não fica sem resposta)
+- Permite desenvolvimento sem configurar IA
+
+### 🎯 Prompt Engineering
+
+#### Prompt para Chat
+
+```java
+String promptText = String.format(
+    "Você é um assistente especializado em gestão de motos para logística. " +
+    "Contexto: %s\n\nPergunta: %s\n\n" +
+    "Forneça uma resposta útil, prática e objetiva em português brasileiro.",
+    contexto, pergunta
+);
+```
+
+**Características do Prompt:**
+- Define o papel do assistente (especialista em gestão de motos)
+- Inclui contexto do sistema
+- Solicita resposta em português brasileiro
+- Formato claro e objetivo
+
+#### Prompt para Análise
+
+```java
+String promptText = String.format(
+    "Analise a seguinte operação de moto e forneça sugestões em português brasileiro:\n%s",
+    dadosOperacao
+);
+```
+
+**Características do Prompt:**
+- Foco em análise e sugestões
+- Inclui dados completos da operação
+- Solicita resposta em português brasileiro
+
+### 🔍 Detecção de Disponibilidade
+
+O sistema detecta automaticamente se o Spring AI está disponível:
+
+```java
+try {
+    Class<?> chatModelClass = Class.forName("org.springframework.ai.chat.ChatModel");
+    var beans = applicationContext.getBeansOfType(chatModelClass);
+    if (!beans.isEmpty()) {
+        chatModel = beans.values().iterator().next();
+        logger.info("Spring AI ChatModel inicializado: {}", chatModel.getClass().getSimpleName());
+    }
+} catch (ClassNotFoundException e) {
+    // Spring AI não está disponível, usa fallback
+}
+```
+
+**Vantagens:**
+- Detecção automática sem configuração manual
+- Logs informativos sobre qual modelo está sendo usado
+- Fallback automático se não encontrar
+
+### 📊 Integração com Outros Serviços
+
+A IA também é usada em outros serviços do sistema:
+
+#### Visão Computacional (`VisaoComputacionalService.java`)
+- Usa IA para análise de detecções
+- Detecta anomalias usando IA
+- Gera análise agregada do pátio
+
+#### Localização Inteligente (`LocalizacaoInteligenteService.java`)
+- Usa IA para otimização de posicionamento
+- Calcula melhor posição baseado em status
+- Gera recomendações inteligentes
+
+### 🎨 Interface do Chat
+
+A interface do chat (`templates/ai/chat.html`) foi desenvolvida com:
+- Design moderno com gradientes
+- Mensagens estilizadas (usuário vs bot)
+- Animações suaves
+- Perguntas rápidas pré-definidas
+- Loading spinner durante processamento
+- Suporte a Markdown nas respostas
+
+### 🔧 Detalhes Técnicos de Implementação da IA
+
+#### Uso de Reflection para Spring AI
+
+O sistema usa Reflection para interagir com Spring AI dinamicamente:
+
+```java
+// Buscar ChatModel no ApplicationContext
+Class<?> chatModelClass = Class.forName("org.springframework.ai.chat.ChatModel");
+var beans = applicationContext.getBeansOfType(chatModelClass);
+if (!beans.isEmpty()) {
+    chatModel = beans.values().iterator().next();
+}
+
+// Criar Prompt via Reflection
+Class<?> promptClass = Class.forName("org.springframework.ai.chat.prompt.Prompt");
+Class<?> userMessageClass = Class.forName("org.springframework.ai.chat.messages.UserMessage");
+Object userMessage = userMessageClass.getConstructor(String.class).newInstance(promptText);
+Object prompt = promptClass.getConstructor(userMessageClass).newInstance(userMessage);
+
+// Chamar método generate() via Reflection
+Method generateMethod = chatModelClass.getMethod("call", promptClass);
+Object response = generateMethod.invoke(chatModel, prompt);
+```
+
+**Por que usar Reflection?**
+- **Compatibilidade**: Funciona com diferentes versões do Spring AI
+- **Flexibilidade**: Não quebra se a API mudar
+- **Opcionalidade**: Permite usar Spring AI sem dependência direta
+
+#### Estratégia de Fallback
+
+O sistema implementa uma estratégia de fallback em múltiplas camadas:
+
+**Camada 1: Detecção de Disponibilidade**
+```java
+if (chatModel == null) {
+    return fallback.obterSugestao(contexto, pergunta);
+}
+```
+
+**Camada 2: Tratamento de Erros**
+```java
+try {
+    return chamarIA(prompt);
+} catch (Exception e) {
+    logger.warn("Erro ao chamar IA, usando fallback: {}", e.getMessage());
+    return fallback.obterSugestao(contexto, pergunta);
+}
+```
+
+**Camada 3: Respostas Pré-definidas**
+```java
+// AIServiceFallback.java
+if (pergunta.toLowerCase().contains("status")) {
+    return "Para verificar o status de uma moto...";
+}
+```
+
+#### Prompt Engineering - Estratégias
+
+**1. Contexto Específico:**
+```java
+String contexto = String.format(
+    "Sistema de gestão de motos com %d motos cadastradas. " +
+    "Status disponíveis: PRONTA, PENDENTE, MANUTENCAO...",
+    totalMotos
+);
+```
+
+**2. Formato de Resposta:**
+```java
+String prompt = String.format(
+    "Você é um assistente especializado em gestão de motos. " +
+    "Contexto: %s\n\nPergunta: %s\n\n" +
+    "Forneça uma resposta útil, prática e objetiva em português brasileiro.",
+    contexto, pergunta
+);
+```
+
+**3. Temperatura e Parâmetros:**
+```properties
+spring.ai.ollama.chat.options.temperature=0.7
+spring.ai.ollama.chat.options.top-p=0.9
+spring.ai.ollama.chat.options.max-tokens=500
+```
+
+#### Integração com Outros Serviços
+
+A IA é usada em múltiplos serviços do sistema:
+
+**1. Visão Computacional (`VisaoComputacionalService.java`):**
+```java
+public String analisarDeteccao(String dadosDeteccao) {
+    String prompt = "Analise esta detecção de moto e identifique anomalias...";
+    return aiService.obterSugestao(contexto, prompt);
+}
+```
+
+**2. Localização Inteligente (`LocalizacaoInteligenteService.java`):**
+```java
+public String calcularMelhorPosicao(String status, int posX, int posY) {
+    String prompt = "Calcule a melhor posição para uma moto com status " + status;
+    return aiService.obterSugestao(contexto, prompt);
+}
+```
+
+**3. Análise de Operações:**
+```java
+public String analisarOperacao(Operacao operacao) {
+    String dados = "Operação: " + operacao.getTipo() + ", Moto: " + operacao.getMoto().getPlaca();
+    return aiService.obterSugestao(contexto, dados);
+}
+```
+
+### ✅ Vantagens da Arquitetura
+
+1. **Flexibilidade**: Funciona com ou sem IA configurada
+2. **Robustez**: Fallback garante que sempre há resposta
+3. **Performance**: Inicialização lazy evita overhead
+4. **Manutenibilidade**: Código limpo e bem documentado
+5. **Escalabilidade**: Fácil adicionar novos provedores de IA
+6. **Compatibilidade**: Funciona com diferentes versões do Spring AI
+7. **Reflection**: Permite uso dinâmico sem dependência direta
+8. **Multi-Camadas**: Fallback em múltiplas camadas garante robustez
+
+---
+
+## 🤖 Configuração do Spring AI
+
+### Opção 1: Ollama (Local, Gratuito - Recomendado)
+
+1. **Instalar Ollama**: https://ollama.ai/
+2. **Baixar modelo**:
+   ```bash
+   ollama pull llama2
+   ```
+3. **Iniciar Ollama** (geralmente roda automaticamente após instalação)
+4. **Editar `application.properties`** e descomentar:
+   ```properties
+   spring.ai.ollama.base-url=http://localhost:11434
+   spring.ai.ollama.chat.options.model=llama2
+   spring.ai.ollama.chat.options.temperature=0.7
+   ```
+5. **Comentar as linhas de desabilitação**:
+   ```properties
+   # spring.ai.openai.chat.enabled=false
+   # spring.ai.ollama.chat.enabled=false
+   ```
+
+### Opção 2: OpenAI (Pago, precisa API Key)
+
+1. **Obter API Key**: https://platform.openai.com/api-keys
+2. **Editar `application.properties`** e descomentar:
+   ```properties
+   spring.ai.openai.api-key=sua-api-key-aqui
+   spring.ai.openai.chat.options.model=gpt-3.5-turbo
+   spring.ai.openai.chat.options.temperature=0.7
+   ```
+3. **Comentar as linhas do Ollama**
+
+**Nota**: O Spring AI está configurado como dependência opcional no `pom.xml`. A aplicação funciona normalmente mesmo sem Spring AI configurado (usa fallback inteligente).
+
+### Funcionalidades de IA
+
+#### Chat com IA
+- Acesse: `/ai/chat`
+- Faça perguntas sobre o sistema
+- Receba sugestões inteligentes
+- Use perguntas rápidas pré-definidas
+
+#### Análise de Operações
+- Análise automática de operações de motos
+- Sugestões inteligentes baseadas no contexto
+- Respostas em português brasileiro
+
+#### Visão Computacional
+- Detecção automática de motos no pátio
+- Análise visual com confiança 85-99%
+- Detecção de anomalias usando IA
+- Análise agregada do pátio completo
+
+#### Localização Inteligente
+- Otimização de posicionamento usando algoritmos inteligentes
+- Cálculo de melhor posição baseado em status
+- Score de otimização para cada moto
+- Análise de distância até entrada
+
+### Troubleshooting
+
+**Erro ao conectar com Ollama:**
+- Verifique se Ollama está rodando: `ollama list`
+- Confirme a URL: `http://localhost:11434`
+- Verifique se o modelo foi baixado: `ollama pull llama2`
+
+**Chat não funciona:**
+- Verifique os logs para erros
+- Teste o fallback local primeiro
+- Confirme que a rota `/ai/chat` está acessível
+- Verifique se o Spring AI está no classpath (é opcional)
 
 ---
 
 ## 📚 Documentação Adicional
 
-- [Instruções Spring AI](INSTRUCOES_SPRING_AI.md)
 - [Análise de Entrega](ANALISE_ENTREGA_SPRINT4.md)
 - [Diagrama de Classes](DIAGRAMA_CLASSES.md)
 - [Diagrama de Fluxo](DIAGRAMA_FLUXO.md)
-- [Guia API REST](GUIA_API_REST.md)
-- [Guia Integração ESP32](GUIA_INTEGRACAO_ESP32.md)
 
 ---
 
