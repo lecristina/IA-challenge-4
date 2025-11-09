@@ -23,7 +23,7 @@ public class SegurancaConfig {
 				.requestMatchers("/usuario/lista", "/usuario/excluir/**").hasRole("ADMIN")
 				.requestMatchers("/dashboard", "/relatorios/**").hasAnyRole("ADMIN", "GERENTE")
 				.requestMatchers("/motos/**", "/operacoes/**").hasAnyRole("ADMIN", "GERENTE", "OPERADOR")
-				.requestMatchers("/ai/**").authenticated()
+				.requestMatchers("/ai/**", "/disruptive-architectures/**").authenticated()
 				.requestMatchers("/acesso_negado").permitAll()
 				// Todas as outras rotas requerem autenticação
 				.anyRequest().authenticated())

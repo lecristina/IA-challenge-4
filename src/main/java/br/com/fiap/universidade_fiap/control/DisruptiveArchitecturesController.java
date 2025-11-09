@@ -96,21 +96,41 @@ public class DisruptiveArchitecturesController {
             Set<String> posicoesOcupadas = new HashSet<>();
             List<Map<String, Object>> localizacoes = new ArrayList<>();
             
-            logger.info("Processando {} motos cadastradas para exibir no mapa", motos.size());
+            logger.info("🔍 Processando {} motos cadastradas para exibir no mapa", motos.size());
             
-            for (Moto moto : motos) {
-                try {
-                    Map<String, Object> loc = criarLocalizacao(moto, statusMap.get(moto.getId()), posicoesOcupadas);
-                    localizacoes.add(loc);
-                    logger.debug("Moto {} (placa: {}) posicionada em ({}, {})", 
-                        moto.getId(), moto.getPlaca(), loc.get("posicaoX"), loc.get("posicaoY"));
-                } catch (Exception e) {
-                    logger.error("Erro ao criar localização para moto {}: {}", moto.getId(), e.getMessage());
+            if (motos == null || motos.isEmpty()) {
+                logger.warn("⚠️ Lista de motos está vazia ou nula!");
+            } else {
+                for (Moto moto : motos) {
+                    try {
+                        if (moto != null && moto.getId() != null) {
+                            Map<String, Object> loc = criarLocalizacao(moto, statusMap.get(moto.getId()), posicoesOcupadas);
+                            if (loc != null && loc.get("moto") != null) {
+                                localizacoes.add(loc);
+                                logger.info("✅ Moto {} (placa: {}) posicionada em ({}, {}) - Status: {} - GPS: {}% - BT: {}% - Bateria: {}%", 
+                                    moto.getId(), 
+                                    moto.getPlaca(), 
+                                    loc.get("posicaoX"), 
+                                    loc.get("posicaoY"),
+                                    loc.get("status"),
+                                    loc.get("sinalGPS"),
+                                    loc.get("sinalBluetooth"),
+                                    loc.get("bateria"));
+                            } else {
+                                logger.warn("⚠️ Localização nula para moto {} (placa: {})", moto.getId(), moto.getPlaca());
+                            }
+                        } else {
+                            logger.warn("⚠️ Moto nula ou sem ID encontrada na lista");
+                        }
+                    } catch (Exception e) {
+                        logger.error("❌ Erro ao criar localização para moto {}: {}", 
+                            moto != null ? moto.getId() : "null", e.getMessage(), e);
+                    }
                 }
             }
             
-            logger.info("Total de {} motos posicionadas no mapa ({} posições ocupadas)", 
-                localizacoes.size(), posicoesOcupadas.size());
+            logger.info("✅ Total de {} motos posicionadas no mapa ({} posições ocupadas) de {} motos cadastradas", 
+                localizacoes.size(), posicoesOcupadas.size(), motos != null ? motos.size() : 0);
             
             // Estatísticas
             long motosProntas = localizacoes.stream()
@@ -296,44 +316,7 @@ public class DisruptiveArchitecturesController {
                                 localizacaoMotoEncontrada = new HashMap<>();
                                 localizacaoMotoEncontrada.put("moto", motoEncontrada);
                                 
-                                // GPS
-                                localizacaoMotoEncontrada.put("latitude", -23.5505 + (random.nextDouble() - 0.5) * 0.01);
-                                localizacaoMotoEncontrada.put("longitude", -46.6333 + (random.nextDouble() - 0.5) * 0.01);
-                                
-                                // Posição FIXA no pátio - cada moto tem sua posição única baseada no ID
-                                long motoId = motoEncontrada.getId() != null ? motoEncontrada.getId() : 0;
-                                
-                                // Pátio grande: 50x50 metros
-                                // Cada moto tem posição FIXA baseada no ID
-                                // Usar algoritmo determinístico para garantir sempre a mesma posição
-                                
-                                // Calcular posição X fixa (0-49 metros)
-                                int posXFix = (int) ((motoId * 7 + 13) % 50);
-                                if (posXFix == 0) posXFix = 5; // Evitar posição 0
-                                
-                                // Calcular posição Y fixa (0-49 metros)
-                                int posYFix = (int) ((motoId * 11 + 17) % 50);
-                                if (posYFix == 0) posYFix = 5; // Evitar posição 0
-                                
-                                // Calcular setor (1-5) baseado na posição fixa
-                                int setorX = (posXFix / 10) + 1; // Setor 1-5
-                                int setorY = (posYFix / 10) + 1; // Setor 1-5
-                                
-                                localizacaoMotoEncontrada.put("posicaoX", posXFix);
-                                localizacaoMotoEncontrada.put("posicaoY", posYFix);
-                                localizacaoMotoEncontrada.put("setorX", setorX);
-                                localizacaoMotoEncontrada.put("setorY", setorY);
-                                localizacaoMotoEncontrada.put("setor", "Setor " + setorX + "-" + setorY);
-                                localizacaoMotoEncontrada.put("posicaoMetros", posXFix + "m x " + posYFix + "m");
-                                localizacaoMotoEncontrada.put("posicaoFixa", true); // Marcar como posição fixa
-                                
-                                // ESP32
-                                localizacaoMotoEncontrada.put("sinalGPS", 80 + random.nextInt(20));
-                                localizacaoMotoEncontrada.put("sinalBluetooth", 70 + random.nextInt(30));
-                                localizacaoMotoEncontrada.put("esp32Id", "ESP32-" + String.format("%04d", motoEncontrada.getId()));
-                                localizacaoMotoEncontrada.put("bateria", 85 + random.nextInt(15));
-                                
-                                // Status e Localização via Operação
+                                // Status e Localização via Operação (definir antes de usar)
                                 String statusAtual = "PENDENTE";
                                 String localizacaoOperacao = "Pátio Principal";
                                 
@@ -346,13 +329,80 @@ public class DisruptiveArchitecturesController {
                                     }
                                 }
                                 
+                                // GPS
+                                localizacaoMotoEncontrada.put("latitude", -23.5505 + (random.nextDouble() - 0.5) * 0.01);
+                                localizacaoMotoEncontrada.put("longitude", -46.6333 + (random.nextDouble() - 0.5) * 0.01);
+                                
+                                // Pátio grande: 50x50 metros
+                                // Gerar posição ALEATÓRIA única
+                                
+                                // Gerar posição aleatória baseada no status
+                                int posXFix, posYFix;
+                                
+                                if ("PRONTA".equals(statusAtual)) {
+                                    // Motos prontas: área 0-24 metros (mais perto da entrada)
+                                    posXFix = random.nextInt(25); // 0-24
+                                    posYFix = random.nextInt(25); // 0-24
+                                } else if (statusAtual != null && (statusAtual.contains("MANUTENCAO") || statusAtual.contains("REPARO") || 
+                                           statusAtual.contains("DANOS") || statusAtual.contains("MOTOR"))) {
+                                    // Motos em manutenção: área 25-49 metros (fundo do pátio)
+                                    posXFix = 25 + random.nextInt(25); // 25-49
+                                    posYFix = 25 + random.nextInt(25); // 25-49
+                                } else {
+                                    // Outros status: posição aleatória em todo o pátio (0-49 metros)
+                                    posXFix = random.nextInt(50); // 0-49
+                                    posYFix = random.nextInt(50); // 0-49
+                                }
+                                
+                                // Evitar posição 0,0
+                                if (posXFix == 0 && posYFix == 0) {
+                                    posXFix = 1;
+                                    posYFix = 1;
+                                }
+                                
+                                // Calcular setor (1-5) baseado na posição
+                                int setorX = (posXFix / 10) + 1; // Setor 1-5
+                                int setorY = (posYFix / 10) + 1; // Setor 1-5
+                                
+                                localizacaoMotoEncontrada.put("posicaoX", posXFix);
+                                localizacaoMotoEncontrada.put("posicaoY", posYFix);
+                                localizacaoMotoEncontrada.put("setorX", setorX);
+                                localizacaoMotoEncontrada.put("setorY", setorY);
+                                localizacaoMotoEncontrada.put("setor", "Setor " + setorX + "-" + setorY);
+                                localizacaoMotoEncontrada.put("posicaoMetros", posXFix + "m x " + posYFix + "m");
+                                localizacaoMotoEncontrada.put("posicaoFixa", false); // Marcar como posição aleatória
+                                
+                                // ESP32 - SEMPRE preencher todos os campos
+                                int sinalGPS = 80 + random.nextInt(20); // 80-99%
+                                int sinalBluetooth = 70 + random.nextInt(30); // 70-99%
+                                int bateria = 85 + random.nextInt(15); // 85-99%
+                                String esp32Id = "ESP32-" + String.format("%04d", motoEncontrada.getId());
+                                
+                                localizacaoMotoEncontrada.put("sinalGPS", sinalGPS);
+                                localizacaoMotoEncontrada.put("sinalBluetooth", sinalBluetooth);
+                                localizacaoMotoEncontrada.put("esp32Id", esp32Id);
+                                localizacaoMotoEncontrada.put("bateria", bateria);
+                                
+                                // Alertas
+                                List<String> alertas = new ArrayList<>();
+                                if (bateria < 20) {
+                                    alertas.add("Bateria baixa");
+                                }
+                                if (sinalGPS < 50) {
+                                    alertas.add("Sinal GPS fraco");
+                                }
+                                if (statusAtual != null && (statusAtual.contains("MANUTENCAO") || statusAtual.contains("REPARO"))) {
+                                    alertas.add("Em manutenção");
+                                }
+                                localizacaoMotoEncontrada.put("alertas", alertas);
+                                
                                 localizacaoMotoEncontrada.put("status", statusAtual);
                                 localizacaoMotoEncontrada.put("area", localizacaoOperacao);
                                 localizacaoMotoEncontrada.put("localizacaoOperacao", localizacaoOperacao);
+                                
+                                // Marcar como encontrada
+                                localizacaoMotoEncontrada.put("encontrada", true);
                             }
-                            
-                            // Sempre marcar como encontrada
-                            localizacaoMotoEncontrada.put("encontrada", true);
                             
                             logger.info("✅ LOCALIZAÇÃO CRIADA: Placa={}, PosX={}, PosY={}, Lat={}, Lon={}", 
                                 motoEncontrada.getPlaca(),
@@ -581,6 +631,7 @@ public class DisruptiveArchitecturesController {
     private Map<String, Object> criarLocalizacao(Moto moto, StatusMoto status, Set<String> posicoesOcupadas) {
         Map<String, Object> loc = new HashMap<>();
         if (moto != null) {
+            // Garantir que sempre retorne um objeto válido
             loc.put("moto", moto);
             
             // Status da moto
@@ -595,9 +646,8 @@ public class DisruptiveArchitecturesController {
             loc.put("latitude", -23.5505 + (random.nextDouble() - 0.5) * 0.01);
             loc.put("longitude", -46.6333 + (random.nextDouble() - 0.5) * 0.01);
             
-            // Posição FIXA no pátio - cada moto tem sua posição única baseada no ID
+            // Posição ALEATÓRIA no pátio - cada moto recebe uma posição aleatória única
             // Pátio grande: 50x50 metros
-            long motoId = moto.getId() != null ? moto.getId() : 0;
             int posX, posY;
             
             if ("ALUGADA".equals(statusAtual)) {
@@ -605,55 +655,81 @@ public class DisruptiveArchitecturesController {
                 posX = -1;
                 posY = -1;
             } else {
-                // Calcular posição FIXA baseada no ID da moto
-                // Algoritmo determinístico para garantir sempre a mesma posição
+                // Gerar posição ALEATÓRIA única (evitar duplicatas)
+                int tentativas = 0;
+                int maxTentativas = 100; // Limite de tentativas para evitar loop infinito
                 
-                // Calcular posição X fixa (0-49 metros)
-                posX = (int) ((motoId * 7 + 13) % 50);
-                if (posX == 0) posX = 5; // Evitar posição 0
+                do {
+                    // Gerar posição aleatória baseada no status
+                    if ("PRONTA".equals(statusAtual)) {
+                        // Motos prontas: área 0-24 metros (mais perto da entrada)
+                        posX = random.nextInt(25); // 0-24
+                        posY = random.nextInt(25); // 0-24
+                    } else if (statusAtual != null && (statusAtual.contains("MANUTENCAO") || statusAtual.contains("REPARO") || 
+                               statusAtual.contains("DANOS") || statusAtual.contains("MOTOR"))) {
+                        // Motos em manutenção: área 25-49 metros (fundo do pátio)
+                        posX = 25 + random.nextInt(25); // 25-49
+                        posY = 25 + random.nextInt(25); // 25-49
+                    } else {
+                        // Outros status: posição aleatória em todo o pátio (0-49 metros)
+                        posX = random.nextInt(50); // 0-49
+                        posY = random.nextInt(50); // 0-49
+                    }
+                    
+                    // Evitar posição 0,0
+                    if (posX == 0 && posY == 0) {
+                        posX = 1;
+                        posY = 1;
+                    }
+                    
+                    tentativas++;
+                    
+                    // Se excedeu tentativas, usar posição baseada no ID como fallback
+                    if (tentativas >= maxTentativas) {
+                        long motoId = moto.getId() != null ? moto.getId() : 0;
+                        posX = (int) ((motoId * 7 + 13) % 50);
+                        posY = (int) ((motoId * 11 + 17) % 50);
+                        if (posX == 0) posX = 5;
+                        if (posY == 0) posY = 5;
+                        break; // Forçar saída do loop
+                    }
+                    
+                } while (posicoesOcupadas.contains(posX + "," + posY)); // Repetir se posição já ocupada
                 
-                // Calcular posição Y fixa (0-49 metros)
-                posY = (int) ((motoId * 11 + 17) % 50);
-                if (posY == 0) posY = 5; // Evitar posição 0
-                
-                // Ajustar baseado no status (opcional, mas mantém distribuição)
-                if ("PRONTA".equals(statusAtual)) {
-                    // Motos prontas: manter na área 0-24 metros (mais perto da entrada)
-                    if (posX > 24) posX = posX % 25;
-                    if (posY > 24) posY = posY % 25;
-                } else if (statusAtual != null && (statusAtual.contains("MANUTENCAO") || statusAtual.contains("REPARO") || 
-                           statusAtual.contains("DANOS") || statusAtual.contains("MOTOR"))) {
-                    // Motos em manutenção: área 25-49 metros (fundo do pátio)
-                    posX = 25 + (posX % 25);
-                    posY = 25 + (posY % 25);
-                }
-                
-                // Marcar posição como ocupada (mesmo que seja fixa, manter controle)
+                // Marcar posição como ocupada
                 String posicaoKey = posX + "," + posY;
                 posicoesOcupadas.add(posicaoKey);
             }
             
+            // Calcular setor (1-5) baseado na posição
+            int setorX = (posX >= 0 ? (posX / 10) + 1 : 0); // Setor 1-5
+            int setorY = (posY >= 0 ? (posY / 10) + 1 : 0); // Setor 1-5
+            
             loc.put("posicaoX", posX);
             loc.put("posicaoY", posY);
-            loc.put("posicaoFixa", true); // Marcar como posição fixa
+            loc.put("setorX", setorX);
+            loc.put("setorY", setorY);
+            loc.put("setor", posX >= 0 && posY >= 0 ? "Setor " + setorX + "-" + setorY : "Fora do pátio");
+            loc.put("posicaoMetros", posX >= 0 && posY >= 0 ? posX + "m x " + posY + "m" : "N/A");
+            loc.put("posicaoFixa", false); // Marcar como posição aleatória
             
-            // Dados ESP32 (simulados)
-            loc.put("sinalGPS", 80 + random.nextInt(20));
-            loc.put("sinalBluetooth", 70 + random.nextInt(30));
-            if (moto.getId() != null) {
-                loc.put("esp32Id", "ESP32-" + String.format("%04d", moto.getId()));
-            }
-            loc.put("bateria", 85 + random.nextInt(15));
+            // Dados ESP32 (simulados) - SEMPRE preencher todos os campos
+            int sinalGPS = 80 + random.nextInt(20); // 80-99%
+            int sinalBluetooth = 70 + random.nextInt(30); // 70-99%
+            int bateria = 85 + random.nextInt(15); // 85-99%
+            String esp32Id = "ESP32-" + String.format("%04d", moto.getId() != null ? moto.getId() : 0);
+            
+            loc.put("sinalGPS", sinalGPS);
+            loc.put("sinalBluetooth", sinalBluetooth);
+            loc.put("esp32Id", esp32Id);
+            loc.put("bateria", bateria);
             
             // Alertas
             List<String> alertas = new ArrayList<>();
             try {
-                Object bateriaObj = loc.get("bateria");
-                if (bateriaObj != null && bateriaObj instanceof Number) {
-                    int bateria = ((Number) bateriaObj).intValue();
-                    if (bateria < 20) {
-                        alertas.add("Bateria baixa");
-                    }
+                // Usar a variável bateria já definida acima
+                if (bateria < 20) {
+                    alertas.add("Bateria baixa");
                 }
             } catch (Exception e) {
                 // Ignorar erro
@@ -673,7 +749,11 @@ public class DisruptiveArchitecturesController {
                 alertas.add("Em manutenção");
             }
             loc.put("alertas", alertas);
+        } else {
+            // Se moto for null, retornar objeto vazio mas válido
+            logger.warn("⚠️ Tentativa de criar localização para moto nula");
         }
+        // Sempre retornar objeto válido (mesmo que vazio)
         return loc;
     }
     
@@ -689,6 +769,8 @@ public class DisruptiveArchitecturesController {
         );
     }
 }
+
+
 
 
 
