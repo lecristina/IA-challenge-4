@@ -191,3 +191,4 @@ Procure nos logs:
 Com tudo conectado e configurado, o sistema está **100% pronto** para usar LED real em produção!
 
 
+

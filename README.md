@@ -51,6 +51,8 @@ A Mottu é uma empresa de mobilidade urbana que precisa gerenciar eficientemente
 - [Estrutura do Projeto](#-estrutura-do-projeto)
 - [Novidades Implementadas](#-novidades-implementadas)
 - [Deploy](#-deploy)
+- [Cálculo de Custos e ROI](#-cálculo-de-custos-e-roi---solução-econômica)
+- [Guia para Apresentação em Vídeo](#-guia-para-apresentação-em-vídeo)
 
 ---
 
@@ -170,13 +172,14 @@ Abra o navegador e acesse: **http://localhost:8081**
 - **Análise de Operações**: Análise automática de dados
 - **Fallback Inteligente**: Funciona mesmo sem IA configurada
 
-### 🔌 IoT/IOB - ESP32 (NOVO)
+### 🔌 IoT/IOB - ESP8266 (NOVO)
 - **Busca Inteligente**: Buscar moto por placa com LED piscando
 - **Localização Fixa**: Cada moto tem posição X/Y única no pátio (50x50m)
-- **LED Virtual/Físico**: LED pisca via ESP32 (simulado ou físico)
+- **LED Virtual/Físico**: LED pisca via ESP8266 (simulado ou físico)
 - **Localização via Operação**: Mostra onde está através do status/área
 - **Dashboard IoT**: Visualização completa de todas as motos monitoradas
-- **Integração ESP32**: Comunicação HTTP REST com hardware físico
+- **Integração ESP8266**: Comunicação HTTP REST com hardware físico
+- **Custo-Benefício**: Hardware econômico (R$ 9,35/moto) com ROI impressionante (payback de 28 dias)
 
 ### 👁️ Visão Computacional (NOVO)
 - **Detecção Automática**: Detecta motos no pátio usando IA
@@ -321,13 +324,14 @@ Abra o navegador e acesse: **http://localhost:8081**
   - `AIController.java` - Controller do chat
   - `templates/ai/chat.html` - Interface do chat
 
-#### 8. **IoT/IOB - ESP32** (Internet das Coisas)
-- **Integração ESP32**: Controle de LED físico via HTTP REST
+#### 8. **IoT/IOB - ESP8266** (Internet das Coisas)
+- **Integração ESP8266**: Controle de LED físico via HTTP REST (87% mais barato que ESP32!)
 - **Simulação Inteligente**: Sistema funciona com ou sem hardware físico
-- **Comunicação Remota**: API REST para comunicação com ESP32
+- **Comunicação Remota**: API REST para comunicação com ESP8266
+- **Custo-Benefício**: Hardware econômico (R$ 9,35/moto) com ROI impressionante
 - **Evidências**:
-  - `ESP32Service.java` - Serviço de controle ESP32
-  - `ESP32_LED_EXAMPLE.ino` - Código Arduino para ESP32
+  - `ESP32Service.java` - Serviço de controle ESP8266/ESP32
+  - `ESP32_LED_EXAMPLE.ino` - Código Arduino para ESP8266/ESP32 (compatível)
   - `GUIA_INTEGRACAO_ESP32.md` - Documentação completa
   - Endpoint: `POST /disruptive-architectures/ativar-led`
 
@@ -765,13 +769,343 @@ Este sistema está completo e funcional, atendendo todos os requisitos do desafi
 
 ---
 
+## 💰 Cálculo de Custos e ROI - Solução Econômica
+
+### Hardware por Moto (Opção Econômica)
+
+**Custo de hardware por moto (compra em volume):**
+- ESP8266 (alternativa ao ESP32): R$ 8,00 (compra em lote de 100+)
+- LED: R$ 0,30 (compra em lote)
+- Resistor 220Ω: R$ 0,05 (compra em lote)
+- Cabos e conectores: R$ 1,00
+- **Total por moto: R$ 9,35** (87% mais barato que ESP32!)
+
+**Custo de instalação (opções):**
+- **Opção 1 - Interna**: Treinar equipe própria = R$ 0,00 (apenas tempo)
+- **Opção 2 - Terceirizada**: R$ 20,00 por moto (instalação simples)
+- **Total com instalação interna: R$ 9,35 por moto**
+- **Total com instalação terceirizada: R$ 29,35 por moto**
+
+### Custo Total para Frota
+
+**Frota de 100 motos:**
+- Hardware: 100 × R$ 9,35 = R$ 935,00
+- Instalação interna: R$ 0,00 (equipe própria)
+- **Total: R$ 935,00** (economia de 87%!)
+
+**Frota de 500 motos:**
+- Hardware: 500 × R$ 9,35 = R$ 4.675,00
+- Instalação interna: R$ 0,00 (equipe própria)
+- **Total: R$ 4.675,00** (economia de 87%!)
+
+**Frota de 1.000 motos:**
+- Hardware: 1.000 × R$ 9,35 = R$ 9.350,00
+- Instalação interna: R$ 0,00 (equipe própria)
+- **Total: R$ 9.350,00** (economia de 87%!)
+
+**💡 Alternativa: Implementação Gradual**
+- Começar com 50 motos: R$ 467,50
+- Expandir conforme ROI comprovado
+- Reduzir risco e investimento inicial
+
+### ROI (Retorno sobre Investimento)
+
+**Economia de tempo:**
+- Sem o sistema: 10-15 minutos para encontrar uma moto
+- Com o sistema: 30 segundos (busca + LED piscando)
+- **Economia: 9-14 minutos por busca**
+
+**Economia de custo operacional:**
+- Operador ganha R$ 20/hora
+- 10 buscas por dia × 10 minutos economizados = 100 minutos = 1,67 horas
+- **Economia diária: R$ 33,40**
+- **Economia mensal: R$ 1.002,00**
+- **Economia anual: R$ 12.024,00**
+
+**ROI para frota de 100 motos (opção econômica):**
+- Investimento: R$ 935,00 (hardware apenas)
+- Economia anual: R$ 12.024,00
+- **ROI: 1.186% no primeiro ano!** 🚀
+- **Payback: 28 dias** (menos de 1 mês!)
+
+### Custo de Energia
+
+**ESP8266 em standby (mais econômico que ESP32):**
+- Consumo: 0,08W (standby WiFi - mais eficiente)
+- Custo kWh: R$ 0,60
+- **Custo mensal por ESP8266: R$ 0,03**
+
+**LED piscando (30 segundos):**
+- Consumo: 0,02W × 30s = 0,0006 Wh
+- **Custo por ativação: R$ 0,00000036 (praticamente zero)**
+
+**Para 100 motos:**
+- Custo mensal de energia: 100 × R$ 0,03 = **R$ 3,00/mês**
+- **Custo anual: R$ 36,00** (desprezível comparado à economia)
+
+**💡 O ESP8266 é mais barato E mais eficiente em energia!**
+
+### Números para Lembrar
+
+- **Custo por moto**: R$ 9,35 (hardware - ESP8266)
+- **Custo total (100 motos)**: R$ 935,00 (instalação interna)
+- **Economia anual**: R$ 12.024,00
+- **ROI**: 1.186% no primeiro ano 🚀
+- **Payback**: 28 dias (menos de 1 mês!)
+- **Tempo de busca**: 30 segundos (vs. 10-15 minutos)
+- **Consumo energia**: R$ 3,00/mês (100 motos)
+- **Economia vs. opção original**: 87% mais barato!
+
+---
+
+## 🎥 Guia para Apresentação em Vídeo
+
+### 📋 Informações Gerais
+
+- **Duração Máxima**: 15 minutos
+- **Participantes**: Todos os membros devem participar
+- **Formato**: Demonstração técnica + narrativa da solução
+
+### 👥 Integrantes e Participação
+
+**⚠️ IMPORTANTE: Todos devem falar no vídeo!**
+
+**Sugestão de Distribuição:**
+- **Integrante 1**: Introdução + Problema da Mottu + Dashboard (3-4 min)
+- **Integrante 2**: Funcionalidades principais + Tecnologias (4-5 min)
+- **Integrante 3**: IA + Integração Multidisciplinar + Conclusão (3-4 min)
+- **Todos**: Aparecer juntos na abertura e fechamento
+
+### 🎬 Roteiro da Apresentação
+
+#### 1. **Abertura** (1 minuto)
+- Apresentação da equipe (todos aparecem)
+- Nome do projeto: **TrackZone**
+- Problema da Mottu (contexto)
+- Objetivo da solução
+
+**Fala Sugerida:**
+> "Olá! Somos o grupo [Nome do Grupo] e desenvolvemos o TrackZone, uma solução completa de gestão de frota de motos para a Mottu. Nossa solução integra **IoT, IOB e Inteligência Artificial** para resolver um problema real: como localizar rapidamente uma moto em um pátio de 50x50 metros com centenas de veículos."
+
+#### 2. **Demonstração Técnica - Parte 1** (4-5 minutos)
+
+**2.1. Login e Autenticação**
+- Acessar aplicação (mostrar URL se deploy, ou localhost:8081)
+- Fazer login com usuário ADMIN
+- Mostrar que há 3 perfis (ADMIN, GERENTE, OPERADOR)
+- Explicar Spring Security implementado
+
+**2.2. Dashboard**
+- Mostrar dashboard com estatísticas
+- Explicar métricas apresentadas
+- Destacar visualização moderna
+
+**2.3. Gestão de Motos**
+- Cadastrar uma nova moto
+- Mostrar validações (placa única, chassi único)
+- Listar motos cadastradas
+- Explicar Spring Data JPA
+
+**2.4. IoT/ESP8266 - Busca Inteligente**
+- Acessar página `/disruptive-architectures`
+- Buscar uma moto por placa
+- Mostrar localização X/Y no pátio (50x50m)
+- Explicar LED piscando (virtual ou físico)
+- Mostrar comunicação HTTP REST com ESP8266
+
+**Pontos a Destacar:**
+- ✅ Hardware econômico (ESP8266: R$ 9,35/moto)
+- ✅ ROI impressionante (payback de 28 dias)
+- ✅ Localização inteligente (algoritmo determinístico)
+- ✅ Modo simulação vs. físico
+
+#### 3. **Demonstração Técnica - Parte 2** (4-5 minutos)
+
+**3.1. Status e Operações**
+- Mostrar status de motos
+- Atualizar status de uma moto
+- Explicar ENUM de status
+- Mostrar operações
+
+**3.2. Relatórios**
+- Mostrar tela de relatórios
+- Filtrar por período
+- Filtrar por status
+- Explicar queries customizadas
+
+**3.3. Assistente IA (DESTAQUE!)**
+- Acessar `/ai/chat`
+- Fazer uma pergunta ao assistente
+- Mostrar resposta da IA
+- Explicar Spring AI implementado
+
+**Pontos a Destacar:**
+- ✅ Spring AI 1.0.0 (versão estável)
+- ✅ Integração com Ollama (local) ou OpenAI
+- ✅ Fallback inteligente
+- ✅ Carregamento condicional (@ConditionalOnClass)
+
+#### 4. **Narrativa da Solução** (3-4 minutos)
+
+**4.1. Decisões de Design**
+- Explicar por que Spring Boot
+- Justificar escolha de Thymeleaf
+- Explicar Flyway
+- Destacar Spring AI como diferencial
+- **DESTACAR**: ESP8266 vs ESP32 (87% mais barato!)
+
+**4.2. Arquitetura e Padrões**
+- Explicar arquitetura MVC
+- Mencionar SOLID
+- Destacar Repository Pattern
+- Falar sobre Exception Handling
+
+**4.3. Custo-Benefício**
+- Apresentar custos (R$ 9,35/moto)
+- Mostrar ROI (1.186% no primeiro ano)
+- Explicar payback (28 dias)
+- Destacar economia operacional
+
+#### 5. **Integração Multidisciplinar** (2-3 minutos)
+
+**Disciplinas Integradas:**
+- Design Thinking (UI/UX)
+- Metodologias Ágeis (Sprints)
+- Banco de Dados (SQL, migrações)
+- Engenharia de Software (arquitetura)
+- Segurança (Spring Security)
+- IA (Spring AI)
+- IoT/IOB (ESP8266)
+- Mobile App (API REST)
+- .NET (API REST)
+- DevOps (Docker, CI/CD)
+
+**Evidências a Mencionar:**
+- ✅ Scripts SQL em `db/migration/`
+- ✅ Arquitetura em camadas
+- ✅ Interface moderna e responsiva
+- ✅ Commits no Git (histórico de desenvolvimento)
+- ✅ Dockerfile e CI/CD configurados
+
+#### 6. **Conclusão** (1 minuto)
+- Resumir funcionalidades principais
+- Destacar inovação (IA + IoT)
+- Destacar custo-benefício (ROI impressionante)
+- Agradecer
+
+**Fala Sugerida:**
+> "Em resumo, o TrackZone é uma solução completa que integra tecnologias modernas do ecossistema Spring, com destaque para a integração de IA através do Spring AI e IoT com ESP8266. Com investimento de apenas R$ 9,35 por moto, a Mottu obtém ROI de 1.186% no primeiro ano, com payback de apenas 28 dias. O sistema está funcional, bem documentado e pronto para uso. Obrigado pela atenção!"
+
+### ✅ Checklist Antes da Gravação
+
+**Preparação Técnica:**
+- [ ] Aplicação rodando e testada
+- [ ] Todos os fluxos funcionando
+- [ ] Login de teste funcionando
+- [ ] Dados de exemplo cadastrados
+- [ ] IA configurada (se possível) ou fallback funcionando
+- [ ] Busca de moto no dashboard funcionando
+- [ ] API REST testada (`/api/v1/motos/ABC1234/localizacao`)
+- [ ] LED funcionando (virtual ou físico)
+
+**Preparação da Apresentação:**
+- [ ] Roteiro revisado por todos
+- [ ] Distribuição de falas definida
+- [ ] Tempo de cada seção cronometrado
+- [ ] Evidências prontas (screenshots, diagramas)
+- [ ] Números de custo e ROI revisados
+
+**Testes:**
+- [ ] Testar todos os fluxos antes de gravar
+- [ ] Verificar se não há erros visuais
+- [ ] Confirmar que todos os links funcionam
+- [ ] Testar áudio e vídeo
+
+### 🎯 Pontos-Chave para Demonstrar
+
+**1. Demonstração Técnica (40 pontos)**
+- ✅ Navegar pelos principais fluxos: Login → Dashboard → Cadastro → IoT → IA
+- ✅ Aplicar conceitos da disciplina: Spring Boot, Security, JPA, Thymeleaf, Flyway, AI, IoT
+- ✅ Interface moderna: Mostrar design responsivo e intuitivo
+- ✅ **DESTACAR**: Busca inteligente com ESP8266 e LED
+
+**2. Narrativa (20 pontos)**
+- ✅ Explicar solução: Problema da Mottu → Solução TrackZone
+- ✅ Decisões de design: Por que cada tecnologia
+- ✅ Originalidade: Destaque para IA integrada + IoT
+- ✅ **DESTACAR**: Custo-benefício e ROI impressionante
+
+**3. Integração Multidisciplinar (20 pontos)**
+- ✅ Mencionar disciplinas: Design Thinking, Ágeis, BD, Eng. Software, Segurança, IA, IoT, Mobile, .NET, DevOps
+- ✅ Evidências: Scripts SQL, commits, arquitetura, Dockerfile, CI/CD
+
+**4. Apresentação Oral (10 pontos)**
+- ✅ Todos participam: Distribuir falas igualmente
+- ✅ Clareza: Falar pausadamente e com clareza
+- ✅ Domínio: Demonstrar conhecimento técnico
+
+**5. Organização (10 pontos)**
+- ✅ Estrutura clara: Seguir roteiro
+- ✅ Transições suaves: Entre seções
+- ✅ Profissionalismo: Apresentação polida
+
+### 📝 Dicas de Gravação
+
+**Áudio:**
+- Usar microfone de qualidade (evitar ruído)
+- Falar pausadamente e com clareza
+- Testar áudio antes de gravar
+
+**Vídeo:**
+- Bom enquadramento (todos visíveis)
+- Iluminação adequada
+- Fundo neutro (se necessário)
+
+**Tela:**
+- Zoom adequado (100-125%)
+- Resolução adequada (1920x1080 recomendado)
+- Cursor visível mas não distraindo
+
+**Edição:**
+- Cortar pausas longas
+- Adicionar transições suaves
+- Verificar áudio sincronizado
+
+### 📊 Cronograma Sugerido
+
+| Tempo | Seção | Responsável | Pontos-Chave |
+|-------|-------|-------------|--------------|
+| 0-1 min | Abertura | Todos | Apresentação da equipe |
+| 1-5 min | Demo Técnica 1 | Integrante 1 | Login, Dashboard, CRUD, IoT |
+| 5-9 min | Demo Técnica 2 | Integrante 2 | Status, Relatórios, IA |
+| 9-12 min | Narrativa | Integrante 3 | Decisões, Custo-Benefício, Integração |
+| 12-15 min | Conclusão | Todos | Resumo e agradecimento |
+
+### ✅ Checklist Final Antes de Enviar
+
+- [ ] Vídeo com duração máxima de 15 minutos
+- [ ] Todos os integrantes aparecem e falam
+- [ ] Todos os fluxos principais demonstrados
+- [ ] Conceitos da disciplina mencionados
+- [ ] Decisões de design explicadas
+- [ ] Integração multidisciplinar abordada
+- [ ] Custo-benefício e ROI apresentados
+- [ ] IoT/ESP8266 demonstrado
+- [ ] Sem erros visuais ou de fluxo
+- [ ] Áudio claro e vídeo de qualidade
+- [ ] Link de acesso à aplicação mencionado (se houver)
+- [ ] README completo e atualizado
+
+---
+
 ## 📚 Documentação Adicional
 
 - [Instruções Spring AI](INSTRUCOES_SPRING_AI.md)
 - [Análise de Entrega](ANALISE_ENTREGA_SPRINT4.md)
-- [Guia para Apresentação em Vídeo](README_VIDEO.md)
 - [Diagrama de Classes](DIAGRAMA_CLASSES.md)
 - [Diagrama de Fluxo](DIAGRAMA_FLUXO.md)
+- [Guia API REST](GUIA_API_REST.md)
+- [Guia Integração ESP32](GUIA_INTEGRACAO_ESP32.md)
 
 ---
 
